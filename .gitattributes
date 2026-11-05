@@ -1,0 +1,9 @@
+# Normalize text files in the repository while preserving platform endings.
+* text=auto
+*.bat text eol=crlf
+*.sh text eol=lf
+gradlew text eol=lf
+
+# Binary assets
+*.jar binary
+*.mp3 binary

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Eye 20-20-20</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">Timer</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="home_eyebrow">EYE 20-20-20</string>
+    <string name="home_title">Give your eyes a break.</string>
+    <string name="home_subtitle">Focus for 20 minutes, then look 20 feet away for 20 seconds.</string>
+    <string name="status_working">Working</string>
+    <string name="status_break">Break</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_working_desc">Focus time. A break starts automatically.</string>
+    <string name="status_paused_desc">Your work timer is paused.</string>
+    <string name="status_ready_desc">Start a focus session when you are ready.</string>
+    <string name="status_screen_off_desc">Work resumes when the screen turns back on.</string>
+    <string name="timer_of_total">of %1$s</string>
+    <string name="start_focus">Start focus session</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="today_title">Breaks completed today</string>
+    <string name="today_hint">Only a break that reaches zero is counted.</string>
+    <string name="how_it_works">How it works</string>
+    <string name="how_it_works_body">Work for %1$s, then look at something about 20 feet away for %2$s. Repeat through the day.</string>
+    <string name="screen_off_hint">Work pauses when the screen turns off. A break keeps counting.</string>
+    <string name="notifications_off_title">Notifications are off</string>
+    <string name="notifications_off_body">Allow notifications so the persistent timer and break alerts are visible.</string>
+    <string name="enable_notifications">Enable</string>
+    <string name="overlay_off_title">Break screen may not open automatically</string>
+    <string name="overlay_off_body">Allow "Display over other apps" so the break screen can appear over the app you are using.</string>
+    <string name="allow_overlay">Allow</string>
+    <string name="reset_snackbar">Work timer reset. The screen was off longer than the grace period.</string>
+    <string name="pause_snackbar">Work timer paused.</string>
+    <string name="resume_snackbar">Work timer resumed.</string>
+    <string name="completed_breaks">%1$d completed breaks</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_subtitle">A quiet record of the breaks you actually finished.</string>
+    <string name="today">Today</string>
+    <string name="this_week">This week</string>
+    <string name="weekly_total">Weekly total</string>
+    <string name="all_time">All time</string>
+    <string name="all_time_hint">Completed breaks since you started using the app.</string>
+    <string name="share_report">Share weekly report</string>
+    <string name="share_report_hint">Creates a clean image of this week and opens Android\'s share sheet.</string>
+    <string name="stats_only_completed">Only finished breaks are counted. No goals, streaks, or rewards.</string>
+    <string name="week_range">%1$s – %2$s</string>
+    <string name="no_breaks_yet">No breaks yet</string>
+    <string name="share_chooser">Share weekly report</string>
+    <string name="share_subject">Eye 20-20-20 weekly report</string>
+    <string name="share_failed">Could not create the report image.</string>
+
+    <!-- First-launch setup -->
+    <string name="setup_eyebrow">SETUP</string>
+    <string name="setup_title">Keep your breaks on time.</string>
+    <string name="setup_subtitle">Android limits background work. These settings help the timer and break screen keep working while you use other apps. You can change them later.</string>
+    <string name="setup_recommended">Recommended</string>
+    <string name="setup_optional">Optional</string>
+    <string name="setup_notifications_title">Notifications</string>
+    <string name="setup_notifications_body">The ongoing notification keeps the countdown visible and lets you pause or resume from the notification shade. Android 13 and later asks for notification permission.</string>
+    <string name="setup_battery_title">Unrestricted battery use</string>
+    <string name="setup_battery_body">Android may delay or stop background timers to save power. Allowing unrestricted battery use for this app makes interruptions less likely. It cannot guarantee that the app will never be stopped.</string>
+    <string name="setup_overlay_title">Display over other apps</string>
+    <string name="setup_overlay_body">Optional. Lets the break screen open automatically above the app you are using. Without it, a full-screen break alert asks you to tap before the break screen opens. The timer works without this permission.</string>
+    <string name="setup_allow_notifications">Allow notifications</string>
+    <string name="setup_allow_overlay">Allow over other apps</string>
+    <string name="setup_not_set">Not set up</string>
+    <string name="setup_finish">Start using Eye 20-20-20</string>
+    <string name="setup_skip">Skip for now</string>
+    <string name="setup_later_note">You can change these later in Settings → Background &amp; Permissions.</string>
+    <string name="open_settings">Open settings</string>
+    <string name="open_notification_settings">Notification settings</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Saving a new work duration restarts the current work timer. Other changes apply to the next session.</string>
+    <string name="section_timer">TIMER</string>
+    <string name="work_duration">Work duration</string>
+    <string name="work_duration_desc">How long you focus before each eye break. Saving restarts the work timer.</string>
+    <string name="break_duration">Break duration</string>
+    <string name="break_duration_desc">How long you look away from the screen.</string>
+    <string name="grace_duration">Screen-off grace period</string>
+    <string name="grace_duration_desc">If the screen stays off longer than this during work, the work timer resets.</string>
+    <string name="auto_start">Start the next session automatically</string>
+    <string name="auto_start_desc">Begin a new work session as soon as a break ends.</string>
+    <string name="section_break">BREAK BEHAVIOR</string>
+    <string name="vibrate_start">Vibrate when a break starts</string>
+    <string name="vibrate_end">Vibrate when a break ends</string>
+    <string name="voice_announcements">Voice announcements</string>
+    <string name="voice_announcements_desc">Play a short recording when a break starts and when work resumes.</string>
+    <string name="announcement_volume">Announcement volume</string>
+    <string name="volume_percent">%1$d%%</string>
+    <string name="keep_awake">Keep the screen awake during breaks</string>
+    <string name="keep_awake_desc">Stops the display from sleeping while the break screen is open.</string>
+    <string name="fullscreen_break">Fullscreen break</string>
+    <string name="fullscreen_break_desc">Hide the status and navigation bars when Android allows it.</string>
+    <string name="section_system">BACKGROUND &amp; PERMISSIONS</string>
+    <string name="notifications_setting">Notifications</string>
+    <string name="notifications_setting_desc">Needed for the persistent timer notification and break alerts.</string>
+    <string name="fullscreen_alerts">Full-screen break alerts</string>
+    <string name="fullscreen_alerts_desc">Some Android versions require special access before an app can show its break screen over other apps.</string>
+    <string name="overlay_setting">Display over other apps</string>
+    <string name="overlay_setting_desc">Optional. Lets the break screen appear automatically when a break starts, even while you are using another app. The timer works without it. This is the normal Android overlay permission, not accessibility access.</string>
+    <string name="battery_setting">Battery optimization</string>
+    <string name="battery_setting_desc">For a more reliable background timer, allow unrestricted battery use in Android settings. Android can still stop any app after a force-stop or aggressive restriction.</string>
+    <string name="open_app_settings">Open app settings</string>
+    <string name="open_battery_settings">Open battery settings</string>
+    <string name="battery_unrestricted">Unrestricted</string>
+    <string name="battery_optimized">Optimized</string>
+    <string name="manage">Manage</string>
+    <string name="allowed">Allowed</string>
+    <string name="not_allowed">Not allowed</string>
+    <string name="not_required">Not required on this Android version</string>
+    <string name="section_about">ABOUT</string>
+    <string name="about_body">A small, private timer for the 20-20-20 eye-break rule. All data stays on this device.</string>
+    <string name="version_name">Version %1$s</string>
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_seconds">%1$d sec</string>
+    <string name="dialog_work_title">Work duration</string>
+    <string name="dialog_break_title">Break duration</string>
+    <string name="dialog_grace_title">Screen-off grace period</string>
+    <string name="unit_minutes">Minutes</string>
+    <string name="unit_seconds">Seconds</string>
+    <string name="presets">Presets</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="custom_value">Custom value</string>
+    <string name="invalid_work">Enter a whole number from 1 to 180.</string>
+    <string name="invalid_break">Enter a whole number from 5 to 900.</string>
+    <string name="invalid_grace">Enter a whole number from 0 to 60.</string>
+    <string name="limit_work">1–180 minutes</string>
+    <string name="limit_break">5–900 seconds</string>
+    <string name="limit_grace">0–60 minutes</string>
+    <string name="system_permission_note">These open Android settings. The app never grants permissions on its own.</string>
+    <string name="reliability_note">Android can stop any app after a force-stop or aggressive battery restriction. A foreground service makes interruption unlikely, but it cannot be made impossible.</string>
+    <string name="unit_minutes_short">min</string>
+    <string name="unit_seconds_short">sec</string>
+    <string name="edit">Edit</string>
+
+    <!-- Break screen -->
+    <string name="break_eyebrow">EYE BREAK</string>
+    <string name="break_instruction">Look at something approximately 20 feet away.</string>
+    <string name="break_subinstruction">Relax your eyes. Blink gently.</string>
+    <string name="break_time_remaining">Break time remaining, %1$s</string>
+    <string name="break_almost_done">Almost done</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_channel_timer">Active timer</string>
+    <string name="notif_channel_timer_desc">Ongoing countdown for the current focus or break session.</string>
+    <string name="notif_channel_break">Break alerts</string>
+    <string name="notif_channel_break_desc">Reminder shown when an eye break begins.</string>
+    <string name="notif_working">Working · %1$s left</string>
+    <string name="notif_paused">Work paused · %1$s left</string>
+    <string name="notif_break">Eye break · %1$s left</string>
+    <string name="notif_paused_screen_off">Work paused while the screen is off</string>
+    <string name="notif_paused_screen_off_desc">It resumes automatically when you turn the screen back on.</string>
+    <string name="notif_action_pause">Pause</string>
+    <string name="notif_action_resume">Resume</string>
+    <string name="notif_alert_title">Time for an eye break</string>
+    <string name="notif_alert_text">Look at something approximately 20 feet away for %1$s.</string>
+    <string name="notif_timer_ready">Eye 20-20-20 timer</string>
+
+    <!-- Accessibility -->
+    <string name="cd_timer">Timer, %1$s remaining</string>
+    <string name="cd_progress">Session progress, %1$d percent</string>
+    <string name="cd_countdown">Countdown</string>
+</resources>

@@ -1,0 +1,32 @@
+package com.mohamed.eye2020.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+val Ink = Color(0xFF0B1114)
+val InkSurface = Color(0xFF111A1E)
+val InkSurfaceHigh = Color(0xFF182429)
+val InkVariant = Color(0xFF24343A)
+val Mint = Color(0xFF6FE7C8)
+val MintDeep = Color(0xFF00382E)
+val MintSoft = Color(0xFFB9F5E5)
+val SeaContainer = Color(0xFF0E3D35)
+val Mist = Color(0xFFE6F0EC)
+val Slate = Color(0xFFA9B8B4)
+val OutlineDark = Color(0xFF3E4F52)
+val OutlineDarkSoft = Color(0xFF28383C)
+val Sky = Color(0xFF9DC6DA)
+val SkyContainer = Color(0xFF1B3440)
+val Sand = Color(0xFFE2C48C)
+val ErrorDark = Color(0xFFFFB4AB)
+
+val Paper = Color(0xFFF5FAF7)
+val PaperSurface = Color(0xFFFFFFFF)
+val Forest = Color(0xFF006B58)
+val ForestContainer = Color(0xFFA7F2DF)
+val ForestOnContainer = Color(0xFF002019)
+val Stone = Color(0xFF52635F)
+val OutlineLight = Color(0xFFBCCBC6)
+val OutlineLightSoft = Color(0xFFDDE8E4)
+val Sea = Color(0xFF3D6473)
+val SeaSoft = Color(0xFFD6EAF3)
+val ErrorLight = Color(0xFFBA1A1A)
