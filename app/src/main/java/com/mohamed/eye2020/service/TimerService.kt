@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.ServiceCompat
@@ -41,6 +42,7 @@ class TimerService : Service() {
     // The observer must not stop the service before onStartCommand has handled the
     // command that created it (for example a notification Resume action).
     private var commandReceived = false
+    private lateinit var breakWakeLock: PowerManager.WakeLock
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -57,6 +59,8 @@ class TimerService : Service() {
         val container = (application as EyeApplication).container
         manager = container.timerManager
         notifications = container.notificationHelper
+        breakWakeLock = getSystemService(PowerManager::class.java)!!
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG)
         notifications.createChannels()
         registerScreenReceiver()
         manager.reconcileScreenState()
@@ -95,6 +99,7 @@ class TimerService : Service() {
             runCatching { unregisterReceiver(screenReceiver) }
             receiverRegistered = false
         }
+        runCatching { if (breakWakeLock.isHeld) breakWakeLock.release() }
         manager.persistNow()
         serviceScope.cancel()
         super.onDestroy()
@@ -108,6 +113,8 @@ class TimerService : Service() {
             while (isActive) {
                 val state = manager.state.value
                 val inBreak = state.phase == TimerPhase.BREAK && state.isActive
+
+                updateWakeLock(state)
 
                 if (inBreak && !previousInBreak) {
                     if (!BreakActivity.isOpen) {
@@ -128,6 +135,26 @@ class TimerService : Service() {
                 }
                 delay(500L)
             }
+        }
+    }
+
+    /**
+     * A break intentionally keeps counting while the screen is off, so the CPU must stay
+     * awake: in Doze the system suspends the device even behind a foreground service and
+     * the break end (alerts, haptics, next work start) would slip until the phone woke.
+     * Work is different: screen-off pauses work by design, so no lock is needed there.
+     * The timeout is a safety net; the observer loop releases the lock explicitly.
+     */
+    private fun updateWakeLock(state: TimerState) {
+        val needed = state.phase == TimerPhase.BREAK && state.isActive && state.isRunning
+        if (needed && !breakWakeLock.isHeld) {
+            val remaining = state.remainingAt(SystemClock.elapsedRealtime())
+                .coerceIn(1_000L, MAX_WAKE_LOCK_MILLIS)
+            breakWakeLock.acquire(remaining + WAKE_LOCK_MARGIN_MILLIS)
+            Log.i(TAG, "Wake lock held for the running break")
+        } else if (!needed && breakWakeLock.isHeld) {
+            breakWakeLock.release()
+            Log.i(TAG, "Wake lock released")
         }
     }
 
@@ -193,6 +220,12 @@ class TimerService : Service() {
 
     companion object {
         private const val TAG = "TimerService"
+        private const val WAKE_LOCK_TAG = "eye2020:break"
+        // Break length is capped at 900 s in AppSettings; this only bounds a stuck lock.
+        private const val MAX_WAKE_LOCK_MILLIS = 30 * 60_000L
+        // Lets the end-of-break alert, haptic and next-work transition still get CPU time
+        // after the countdown reaches zero.
+        private const val WAKE_LOCK_MARGIN_MILLIS = 60_000L
         const val ACTION_PAUSE = "com.mohamed.eye2020.action.PAUSE"
         const val ACTION_RESUME = "com.mohamed.eye2020.action.RESUME"
     }
