@@ -3,6 +3,20 @@
 A small Android app for the 20-20-20 eye-break rule: focus for 20 minutes, then look
 at something about 20 feet away for 20 seconds.
 
+## 📥 Download the app (no coding needed)
+
+**Tap the big button below to download the app file (APK). You do not need Android Studio, a PC build, or the source code.**
+
+[![Download Eye 20-20-20 APK](https://img.shields.io/badge/Download-Eye%2020--20--20%20APK-6FE7C8?style=for-the-badge&logo=android&logoColor=black)](https://raw.githubusercontent.com/mo7ammed7745-svg/eye-20-20-20/main/Eye-20-20-20.apk)
+
+**Direct download:** [Eye-20-20-20.apk](https://raw.githubusercontent.com/mo7ammed7745-svg/eye-20-20-20/main/Eye-20-20-20.apk)
+
+1. Tap **Download** above to save the APK file to your phone.
+2. Open the downloaded file and tap **Install**. Android may ask once to allow installs from your browser (for example, Chrome) — that is normal.
+3. Open **Eye 20-20-20** and follow the short setup screen.
+
+Requires Android 8.0 or newer. The app has no ads, no tracking, and no network access; all data stays on your phone.
+
 Built with Kotlin, Jetpack Compose, Material 3, Room, DataStore, Coroutines/Flow and a
 foreground service. Minimum Android 8.0 (API 26); compiled and tested against API 36.
 

@@ -29,6 +29,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Direct-distribution builds are signed with the machine's debug key, so a
+            // release APK upgrades an already-installed build in place. A dedicated
+            // upload keystore is only required if the app goes to the Play Store.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
