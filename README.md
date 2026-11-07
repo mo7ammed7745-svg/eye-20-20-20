@@ -5,11 +5,11 @@ at something about 20 feet away for 20 seconds.
 
 ## 📥 Download the app (no coding needed)
 
-**Tap the big button below to download the app file (APK). You do not need Android Studio, a PC build, or the source code.**
+**Tap the big button below to download the app. You do not need Android Studio, a PC, or the source code.**
 
-[![Download Eye 20-20-20 APK](https://img.shields.io/badge/Download-Eye%2020--20--20%20APK-6FE7C8?style=for-the-badge&logo=android&logoColor=black)](https://raw.githubusercontent.com/mo7ammed7745-svg/eye-20-20-20/main/Eye-20-20-20.apk)
+[![Download Eye 20-20-20 APK](https://img.shields.io/badge/Download-Eye%2020--20--20%20APK-6FE7C8?style=for-the-badge&logo=android&logoColor=black)](https://github.com/mo7ammed7745-svg/eye-20-20-20/releases/latest/download/Eye-20-20-20.apk)
 
-**Direct download:** [Eye-20-20-20.apk](https://raw.githubusercontent.com/mo7ammed7745-svg/eye-20-20-20/main/Eye-20-20-20.apk)
+**Direct download:** [Eye-20-20-20.apk](https://github.com/mo7ammed7745-svg/eye-20-20-20/releases/latest/download/Eye-20-20-20.apk) · [All releases](https://github.com/mo7ammed7745-svg/eye-20-20-20/releases)
 
 1. Tap **Download** above to save the APK file to your phone.
 2. Open the downloaded file and tap **Install**. Android may ask once to allow installs from your browser (for example, Chrome) — that is normal.
