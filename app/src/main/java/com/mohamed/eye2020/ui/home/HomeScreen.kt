@@ -45,8 +45,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -143,6 +143,7 @@ fun HomeScreen(
         TimerControls(
             state = state,
             onPrimaryAction = viewModel::primaryAction,
+            onStopAction = viewModel::stopWork,
         )
 
         Spacer(Modifier.height(28.dp))
@@ -187,7 +188,13 @@ private fun rememberRealtimeNow(state: TimerState): Long {
     LaunchedEffect(state) {
         while (true) {
             now = SystemClock.elapsedRealtime()
-            delay(if (state.isRunning) 250L else 1_000L)
+            // An inactive timer's remaining value is static; there is nothing to tick.
+            val interval = when {
+                state.isRunning -> 250L
+                state.isActive -> 1_000L
+                else -> return@LaunchedEffect
+            }
+            delay(interval)
         }
     }
     return now
@@ -224,6 +231,7 @@ private fun TimerDial(
         else -> stringResource(R.string.status_ready_desc)
     }
     val timeText = TimeFormat.clock(remaining)
+    val timerDescription = stringResource(R.string.cd_timer, timeText)
     val timeStyle = MaterialTheme.typography.displayLarge.copy(
         fontSize = if (timeText.length > 5) 50.sp else 76.sp,
         lineHeight = if (timeText.length > 5) 56.sp else 80.sp,
@@ -237,8 +245,10 @@ private fun TimerDial(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(300.dp)
-                .semantics {
-                    contentDescription = "$status, $timeText remaining"
+                .clearAndSetSemantics {
+                    // One localized announcement instead of hardcoded English and
+                    // re-announcing each visible text as a separate focus.
+                    contentDescription = "$status. $timerDescription"
                 },
         ) {
             Canvas(Modifier.fillMaxSize()) {
@@ -319,6 +329,7 @@ private fun TimerDial(
 private fun TimerControls(
     state: TimerState,
     onPrimaryAction: () -> Unit,
+    onStopAction: () -> Unit,
 ) {
     when {
         state.phase == TimerPhase.BREAK -> {
@@ -332,13 +343,71 @@ private fun TimerControls(
         }
 
         state.isRunning -> {
-            OutlinedButton(
-                onClick = onPrimaryAction,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text(stringResource(R.string.pause))
+                OutlinedButton(
+                    onClick = onPrimaryAction,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                ) {
+                    Text(stringResource(R.string.pause))
+                }
+                OutlinedButton(
+                    onClick = onStopAction,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.stop),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            }
+        }
+
+        state.isActive -> {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Button(
+                    onClick = onPrimaryAction,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    Text(
+                        text = stringResource(R.string.resume),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+                OutlinedButton(
+                    onClick = onStopAction,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.stop),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
             }
         }
 
@@ -360,11 +429,7 @@ private fun TimerControls(
                 )
                 Spacer(Modifier.size(8.dp))
                 Text(
-                    text = if (state.isActive) {
-                        stringResource(R.string.resume)
-                    } else {
-                        stringResource(R.string.start_focus)
-                    },
+                    text = stringResource(R.string.start_focus),
                     style = MaterialTheme.typography.labelLarge,
                 )
             }

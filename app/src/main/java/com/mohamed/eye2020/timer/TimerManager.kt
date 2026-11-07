@@ -13,11 +13,13 @@ import com.mohamed.eye2020.service.TimerService
 import com.mohamed.eye2020.util.Haptics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -67,12 +69,19 @@ class TimerManager(
 
     private var lastPersistedAt = 0L
 
+    @Volatile
+    private var pendingRecordJob: Job? = null
+
     init {
         appScope.launch {
-            settingsRepository.settings.collect { settings ->
-                latestSettings = settings
-                engine.applySettings(settings)
-            }
+            // applySettings is guarded upstream plus here: a preference-stream error
+            // must not kill the coroutine that owns the only timer.
+            settingsRepository.settings
+                .catch { error -> Log.w(TAG, "Stopped reading settings", error) }
+                .collect { settings ->
+                    latestSettings = settings
+                    engine.applySettings(settings)
+                }
         }
 
         // Recover a countdown that reached zero while the process was gone, then persist
@@ -99,6 +108,17 @@ class TimerManager(
 
     fun pauseWork() {
         dispatchEvents(engine.pauseWork())
+    }
+
+    /** Ends the current work session and returns to the ready idle timer. */
+    fun stopWork() {
+        dispatchEvents(engine.reset())
+    }
+
+    /** Leaves an active break early without recording it. */
+    fun skipBreak() {
+        dispatchEvents(engine.skipBreak())
+        ensureServiceRunning()
     }
 
     fun onScreenOff() {
@@ -129,10 +149,14 @@ class TimerManager(
 
     fun needsForegroundService(): Boolean {
         val current = engine.state.value
+        if (!current.isActive) return false
+        // A user-paused session keeps its foreground notification so Pause/Resume/Stop
+        // stay reachable from the shade. A screen-off pause already does the same.
         return current.isRunning ||
-            (current.phase == TimerPhase.WORK &&
-                current.isActive &&
-                current.pauseReason == PauseReason.SCREEN_OFF)
+            current.phase == TimerPhase.WORK && (
+                current.pauseReason == PauseReason.USER ||
+                    current.pauseReason == PauseReason.SCREEN_OFF
+                )
     }
 
     fun ensureServiceRunning() {
@@ -151,6 +175,14 @@ class TimerManager(
 
     @Synchronized
     fun persistNow() {
+        // A completed-break insert must reach Room before the post-break snapshot
+        // replaces the break state; otherwise a crash in between silently loses it.
+        pendingRecordJob?.takeIf { it.isActive }?.let { job ->
+            runCatching {
+                runBlocking { job.join() }
+            }
+        }
+        pendingRecordJob = null
         val now = clock.realtimeMillis()
         snapshotStore.save(engine.state.value, now, clock.wallTimeMillis())
         lastPersistedAt = now
@@ -198,12 +230,18 @@ class TimerManager(
                     if (latestSettings.voiceAnnouncements) {
                         announcementPlayer.playWorkStart(latestSettings.announcementVolume)
                     }
-                    appScope.launch {
-                        breakRepository.recordCompletedBreak(
-                            sessionStartedAtMillis = event.sessionStartedAtMillis,
-                            completedAtMillis = event.completedAtMillis,
-                            durationSeconds = event.durationSeconds,
-                        )
+                    pendingRecordJob = appScope.launch {
+                        runCatching {
+                            breakRepository.recordCompletedBreak(
+                                sessionStartedAtMillis = event.sessionStartedAtMillis,
+                                completedAtMillis = event.completedAtMillis,
+                                durationSeconds = event.durationSeconds,
+                            )
+                        }.onFailure { error ->
+                            // A full disk or busy database must never crash the process
+                            // that holds the only timer.
+                            Log.w(TAG, "Unable to record completed break", error)
+                        }
                     }
                 }
 

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,8 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,8 @@ private val BreakProgress = Color(0xFFB9C4C0)
 fun BreakScreen(
     state: TimerState,
     modifier: Modifier = Modifier,
+    /** Opt-in via Settings; null keeps the break strictly until it finishes. */
+    onSkip: (() -> Unit)? = null,
 ) {
     var now by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     LaunchedEffect(state) {
@@ -86,7 +89,7 @@ fun BreakScreen(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(292.dp)
-                    .semantics { contentDescription = description },
+                    .clearAndSetSemantics { contentDescription = description },
             ) {
                 Canvas(Modifier.fillMaxSize()) {
                     val stroke = 3.dp.toPx()
@@ -142,6 +145,19 @@ fun BreakScreen(
                 color = BreakMuted,
                 textAlign = TextAlign.Center,
             )
+            if (onSkip != null) {
+                Spacer(Modifier.height(28.dp))
+                TextButton(
+                    onClick = onSkip,
+                    modifier = Modifier.padding(top = 4.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.skip_break),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = BreakMuted,
+                    )
+                }
+            }
         }
     }
 }

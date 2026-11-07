@@ -20,8 +20,8 @@ class BreakRepositoryTest {
     fun duplicateAndInvalidRecordsAreNotCounted() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val database = Room.inMemoryDatabaseBuilder(context, EyeDatabase::class.java).build()
-        val repository = BreakRepository(database.breakRecordDao())
         val now = System.currentTimeMillis()
+        val repository = BreakRepository(database.breakRecordDao(), wallClock = { now })
 
         try {
             assertTrue(repository.recordCompletedBreak(now - 25_000L, now - 5_000L, 20))
@@ -30,7 +30,7 @@ class BreakRepositoryTest {
 
             assertEquals(1, repository.observeAllTimeCount().first())
 
-            val weekly = repository.observeWeeklyStats(now).first()
+            val weekly = repository.observeWeeklyStats().first()
             assertEquals(1, weekly.todayCount)
             assertEquals(1, weekly.weeklyTotal)
         } finally {
@@ -42,8 +42,8 @@ class BreakRepositoryTest {
     fun completedBreaksAppearInTheWeeklyAndAllTimeTotals() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val database = Room.inMemoryDatabaseBuilder(context, EyeDatabase::class.java).build()
-        val repository = BreakRepository(database.breakRecordDao())
         val now = System.currentTimeMillis()
+        val repository = BreakRepository(database.breakRecordDao(), wallClock = { now })
 
         try {
             repository.recordCompletedBreak(now - 60_000L, now - 40_000L, 20)
@@ -51,7 +51,7 @@ class BreakRepositoryTest {
             repository.recordCompletedBreak(now - 180_000L, now - 160_000L, 20)
 
             assertEquals(3, repository.observeAllTimeCount().first())
-            assertEquals(3, repository.observeWeeklyStats(now).first().todayCount)
+            assertEquals(3, repository.observeWeeklyStats().first().todayCount)
         } finally {
             database.close()
         }

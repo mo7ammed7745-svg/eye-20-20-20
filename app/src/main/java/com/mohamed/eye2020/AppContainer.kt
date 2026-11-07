@@ -34,7 +34,7 @@ class AppContainer(context: Context) {
 
     val notificationHelper = NotificationHelper(appContext).also { it.createChannels() }
 
-    private val announcementPlayer = AnnouncementPlayer(appContext)
+    private val announcementPlayer = AnnouncementPlayer(appContext, applicationScope)
 
     val timerManager = TimerManager(
         context = appContext,

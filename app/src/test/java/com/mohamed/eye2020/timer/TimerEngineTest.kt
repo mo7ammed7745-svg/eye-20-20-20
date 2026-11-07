@@ -325,4 +325,103 @@ class TimerEngineTest {
         assertTrue(engine.startOrResumeWork().isEmpty())
         assertEquals(TimerPhase.BREAK, engine.state.value.phase)
     }
+
+    @Test
+    fun stopEndsARunningWorkSessionAndReturnsToReady() {
+        engine.startOrResumeWork()
+        clock.advance(60_000L)
+
+        val events = engine.reset()
+        assertEquals(listOf(TimerEvent.WorkStopped), events)
+
+        val state = engine.state.value
+        assertEquals(TimerPhase.WORK, state.phase)
+        assertFalse(state.isActive)
+        assertFalse(state.isRunning)
+        assertEquals(20 * 60_000L, state.remainingMillis)
+    }
+
+    @Test
+    fun stopEndsAPausedWorkSessionAndAnIdleResetIsANoOp() {
+        engine.startOrResumeWork()
+        engine.pauseWork()
+        assertEquals(listOf(TimerEvent.WorkStopped), engine.reset())
+
+        // Already idle: stopping again must not emit or persist anything new.
+        assertTrue(engine.reset().isEmpty())
+    }
+
+    @Test
+    fun stopDoesNotEndALiveBreak() {
+        engine.startOrResumeWork()
+        clock.advance(20 * 60_000L)
+        engine.tick()
+
+        assertTrue(engine.reset().isEmpty())
+        assertEquals(TimerPhase.BREAK, engine.state.value.phase)
+        assertTrue(engine.state.value.isActive)
+    }
+
+    @Test
+    fun skipBreakEndsTheBreakEarlyAndStartsWork() {
+        engine.startOrResumeWork()
+        clock.advance(20 * 60_000L)
+        engine.tick()
+        clock.advance(5_000L)
+
+        val events = engine.skipBreak()
+        assertEquals(TimerEvent.BreakSkipped, events[0])
+        assertTrue(events.contains(TimerEvent.WorkStartedAfterBreak))
+        // Skipping is not completing: nothing may be recorded.
+        assertFalse(events.any { it is TimerEvent.BreakCompleted })
+
+        val state = engine.state.value
+        assertEquals(TimerPhase.WORK, state.phase)
+        assertTrue(state.isRunning)
+        assertEquals(20 * 60_000L, state.remainingAt(clock.realtime))
+    }
+
+    @Test
+    fun skipBreakWithAutoStartDisabledLeavesAReadyWorkTimer() {
+        settings = settings.copy(autoStartNextWork = false)
+        engine.startOrResumeWork()
+        clock.advance(20 * 60_000L)
+        engine.tick()
+        clock.advance(3_000L)
+
+        val events = engine.skipBreak()
+        assertTrue(events.contains(TimerEvent.BreakSkipped))
+        assertFalse(events.contains(TimerEvent.WorkStartedAfterBreak))
+
+        val state = engine.state.value
+        assertFalse(state.isActive)
+        assertEquals(20 * 60_000L, state.remainingMillis)
+    }
+
+    @Test
+    fun skipBreakWhileScreenOffArmsWorkPausedWithGrace() {
+        engine.startOrResumeWork()
+        clock.advance(20 * 60_000L)
+        engine.tick()
+        clock.advance(5_000L)
+        screenOn = false
+
+        val events = engine.skipBreak()
+        assertTrue(events.contains(TimerEvent.WorkStartedAfterBreak))
+        assertTrue(events.any { it is TimerEvent.WorkPausedForScreenOff })
+
+        val state = engine.state.value
+        assertEquals(TimerPhase.WORK, state.phase)
+        assertFalse(state.isRunning)
+        assertEquals(PauseReason.SCREEN_OFF, state.pauseReason)
+        // Grace is measured from the skip moment, not from the original break start.
+        assertEquals(clock.realtime, state.screenOffAtRealtimeMillis)
+    }
+
+    @Test
+    fun skipBreakOutsideABreakIsANoOp() {
+        assertTrue(engine.skipBreak().isEmpty())
+        engine.startOrResumeWork()
+        assertTrue(engine.skipBreak().isEmpty())
+    }
 }

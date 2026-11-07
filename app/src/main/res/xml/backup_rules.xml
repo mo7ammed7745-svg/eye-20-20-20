@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- The crash-recovery snapshot is meaningless on another device or install,
+         and restoring it could resurrect a stale countdown. -->
+    <exclude domain="sharedpref" path="eye_timer_snapshot.xml" />
+    <!-- Re-offer the first-run permission setup after a restore, because Android
+         does not restore runtime permissions with the backup. -->
+    <exclude domain="sharedpref" path="eye_setup.xml" />
+</full-backup-content>

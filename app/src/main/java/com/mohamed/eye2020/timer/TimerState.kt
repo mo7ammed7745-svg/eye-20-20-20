@@ -67,5 +67,7 @@ sealed interface TimerEvent {
         val screenOffDurationMillis: Long,
     ) : TimerEvent
 
+    data object WorkStopped : TimerEvent
     data object WorkStartedAfterBreak : TimerEvent
+    data object BreakSkipped : TimerEvent
 }

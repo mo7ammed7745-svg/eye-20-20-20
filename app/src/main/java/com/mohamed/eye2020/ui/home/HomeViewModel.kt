@@ -3,8 +3,8 @@ package com.mohamed.eye2020.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.eye2020.data.BreakRepository
-import com.mohamed.eye2020.domain.WeeklyStats
 import com.mohamed.eye2020.timer.TimerManager
+import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.timer.TimerState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,16 +18,9 @@ class HomeViewModel(
 
     val timerState: StateFlow<TimerState> = timerManager.state
 
-    val weeklyStats: StateFlow<WeeklyStats?> = breakRepository
+    val todayCount: StateFlow<Int> = breakRepository
         .observeWeeklyStats()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null,
-        )
-
-    val todayCount: StateFlow<Int> = weeklyStats
-        .map { it?.todayCount ?: 0 }
+        .map { it.todayCount }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -36,7 +29,7 @@ class HomeViewModel(
 
     fun primaryAction() {
         val state = timerManager.state.value
-        if (state.phase == com.mohamed.eye2020.timer.TimerPhase.WORK &&
+        if (state.phase == TimerPhase.WORK &&
             state.isActive &&
             state.isRunning
         ) {
@@ -44,6 +37,10 @@ class HomeViewModel(
         } else {
             timerManager.startOrResumeWork()
         }
+    }
+
+    fun stopWork() {
+        timerManager.stopWork()
     }
 
     fun ensureService() {

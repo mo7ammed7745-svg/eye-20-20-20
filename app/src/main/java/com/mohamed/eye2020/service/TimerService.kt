@@ -73,6 +73,7 @@ class TimerService : Service() {
         when (intent?.action) {
             ACTION_PAUSE -> manager.pauseWork()
             ACTION_RESUME -> manager.startOrResumeWork()
+            ACTION_STOP -> manager.stopWork()
         }
 
         // A pause command, or a restored state that no longer needs a foreground
@@ -228,5 +229,6 @@ class TimerService : Service() {
         private const val WAKE_LOCK_MARGIN_MILLIS = 60_000L
         const val ACTION_PAUSE = "com.mohamed.eye2020.action.PAUSE"
         const val ACTION_RESUME = "com.mohamed.eye2020.action.RESUME"
+        const val ACTION_STOP = "com.mohamed.eye2020.action.STOP"
     }
 }

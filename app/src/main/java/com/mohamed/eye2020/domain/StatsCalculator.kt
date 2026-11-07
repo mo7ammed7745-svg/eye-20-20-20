@@ -21,13 +21,7 @@ data class WeeklyStats(
     val days: List<DayStat>,
     val todayCount: Int,
     val weeklyTotal: Int,
-) {
-    val startMillis: Long
-        get() = weekStart.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
-    val endExclusiveMillis: Long
-        get() = weekEnd.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-}
+)
 
 /**
  * Pure date math so the weekly report can be tested without Android or a database.
@@ -38,6 +32,13 @@ object StatsCalculator {
     fun weekStart(date: LocalDate): LocalDate =
         date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
+    /** Start of the Monday–Sunday week that contains [nowMillis], as epoch millis. */
+    fun weekStartMillis(nowMillis: Long, zone: ZoneId): Long =
+        weekStart(Instant.ofEpochMilli(nowMillis).atZone(zone).toLocalDate())
+            .atStartOfDay(zone)
+            .toInstant()
+            .toEpochMilli()
+
     fun calculate(
         records: List<BreakRecord>,
         nowMillis: Long,
@@ -46,7 +47,7 @@ object StatsCalculator {
         val today = Instant.ofEpochMilli(nowMillis).atZone(zone).toLocalDate()
         val weekStart = weekStart(today)
         val weekEnd = weekStart.plusDays(6)
-        val startMillis = weekStart.atStartOfDay(zone).toInstant().toEpochMilli()
+        val startMillis = weekStartMillis(nowMillis, zone)
         val endMillis = weekEnd.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
 
         val counts = records

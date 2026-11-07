@@ -66,7 +66,14 @@ class BreakActivity : ComponentActivity() {
                 initialValue = AppSettings(),
             )
             EyeTheme(darkTheme = true) {
-                BreakScreen(state = state)
+                BreakScreen(
+                    state = state,
+                    onSkip = if (settings.allowBreakSkipping) {
+                        { container.timerManager.skipBreak() }
+                    } else {
+                        null
+                    },
+                )
             }
             androidx.compose.runtime.LaunchedEffect(
                 settings.fullscreenBreak,

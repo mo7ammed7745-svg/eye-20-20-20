@@ -87,4 +87,29 @@ class StatsCalculatorTest {
         assertEquals(1, stats.days.first { it.date == monday }.count)
         assertEquals(1, stats.todayCount)
     }
+
+    @Test
+    fun weekStartMillisMatchesTheWindowUsedByCalculate() {
+        // The repository relies on weekStartMillis to pick which records to load;
+        // if it drifts from calculate's own window, entries vanish from the chart.
+        val startMillis = StatsCalculator.weekStartMillis(now, zone)
+
+        val stats = StatsCalculator.calculate(
+            records = listOf(
+                record(LocalDate.of(2026, 11, 2), hour = 0, id = 1),
+                record(LocalDate.of(2026, 11, 8), hour = 23, id = 2),
+                record(LocalDate.of(2026, 11, 1), id = 3),
+                record(LocalDate.of(2026, 11, 9), id = 4),
+            ),
+            nowMillis = now,
+            zone = zone,
+        )
+
+        val counted = stats.days.sumOf { it.count }
+        assertEquals(2, counted)
+        assertEquals(
+            LocalDate.of(2026, 11, 2).atStartOfDay(zone).toInstant().toEpochMilli(),
+            startMillis,
+        )
+    }
 }

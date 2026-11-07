@@ -23,6 +23,7 @@
     <string name="start_focus">Start focus session</string>
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
+    <string name="stop">Stop</string>
     <string name="today_title">Breaks completed today</string>
     <string name="today_hint">Only a break that reaches zero is counted.</string>
     <string name="how_it_works">How it works</string>
@@ -37,6 +38,8 @@
     <string name="reset_snackbar">Work timer reset. The screen was off longer than the grace period.</string>
     <string name="pause_snackbar">Work timer paused.</string>
     <string name="resume_snackbar">Work timer resumed.</string>
+    <string name="stop_snackbar">Focus session stopped.</string>
+    <string name="break_skipped_snackbar">Break skipped. Back to focus.</string>
     <string name="completed_breaks">%1$d completed breaks</string>
 
     <!-- Statistics -->
@@ -52,6 +55,7 @@
     <string name="stats_only_completed">Only finished breaks are counted. No goals, streaks, or rewards.</string>
     <string name="week_range">%1$s – %2$s</string>
     <string name="no_breaks_yet">No breaks yet</string>
+    <string name="no_breaks_hint">Start a focus session from the Timer tab. Finished breaks appear here automatically.</string>
     <string name="share_chooser">Share weekly report</string>
     <string name="share_subject">Eye 20-20-20 weekly report</string>
     <string name="share_failed">Could not create the report image.</string>
@@ -89,6 +93,8 @@
     <string name="grace_duration_desc">If the screen stays off longer than this during work, the work timer resets.</string>
     <string name="auto_start">Start the next session automatically</string>
     <string name="auto_start_desc">Begin a new work session as soon as a break ends.</string>
+    <string name="allow_break_skipping">Allow skipping breaks</string>
+    <string name="allow_break_skipping_desc">Adds a "Continue working" button on the break screen. Off by default so breaks stay protected.</string>
     <string name="section_break">BREAK BEHAVIOR</string>
     <string name="vibrate_start">Vibrate when a break starts</string>
     <string name="vibrate_end">Vibrate when a break ends</string>
@@ -109,7 +115,6 @@
     <string name="overlay_setting_desc">Optional. Lets the break screen appear automatically when a break starts, even while you are using another app. The timer works without it. This is the normal Android overlay permission, not accessibility access.</string>
     <string name="battery_setting">Battery optimization</string>
     <string name="battery_setting_desc">For a more reliable background timer, allow unrestricted battery use in Android settings. Android can still stop any app after a force-stop or aggressive restriction.</string>
-    <string name="open_app_settings">Open app settings</string>
     <string name="open_battery_settings">Open battery settings</string>
     <string name="battery_unrestricted">Unrestricted</string>
     <string name="battery_optimized">Optimized</string>
@@ -130,7 +135,6 @@
     <string name="presets">Presets</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    <string name="custom_value">Custom value</string>
     <string name="invalid_work">Enter a whole number from 1 to 180.</string>
     <string name="invalid_break">Enter a whole number from 5 to 900.</string>
     <string name="invalid_grace">Enter a whole number from 0 to 60.</string>
@@ -141,14 +145,13 @@
     <string name="reliability_note">Android can stop any app after a force-stop or aggressive battery restriction. A foreground service makes interruption unlikely, but it cannot be made impossible.</string>
     <string name="unit_minutes_short">min</string>
     <string name="unit_seconds_short">sec</string>
-    <string name="edit">Edit</string>
 
     <!-- Break screen -->
     <string name="break_eyebrow">EYE BREAK</string>
     <string name="break_instruction">Look at something approximately 20 feet away.</string>
     <string name="break_subinstruction">Relax your eyes. Blink gently.</string>
     <string name="break_time_remaining">Break time remaining, %1$s</string>
-    <string name="break_almost_done">Almost done</string>
+    <string name="skip_break">Continue working</string>
 
     <!-- Foreground service notification -->
     <string name="notif_channel_timer">Active timer</string>
@@ -162,12 +165,11 @@
     <string name="notif_paused_screen_off_desc">It resumes automatically when you turn the screen back on.</string>
     <string name="notif_action_pause">Pause</string>
     <string name="notif_action_resume">Resume</string>
+    <string name="notif_action_stop">Stop</string>
     <string name="notif_alert_title">Time for an eye break</string>
     <string name="notif_alert_text">Look at something approximately 20 feet away for %1$s.</string>
     <string name="notif_timer_ready">Eye 20-20-20 timer</string>
 
     <!-- Accessibility -->
     <string name="cd_timer">Timer, %1$s remaining</string>
-    <string name="cd_progress">Session progress, %1$d percent</string>
-    <string name="cd_countdown">Countdown</string>
 </resources>

@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +56,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    var dialog by remember { mutableStateOf<DurationField?>(null) }
+    var dialog by rememberSaveable { mutableStateOf<DurationField?>(null) }
     val permissions = rememberPermissionSnapshot()
 
     Column(
@@ -118,6 +119,13 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(24.dp))
         SettingsSection(title = stringResource(R.string.section_break)) {
+            SwitchRow(
+                title = stringResource(R.string.allow_break_skipping),
+                description = stringResource(R.string.allow_break_skipping_desc),
+                checked = settings.allowBreakSkipping,
+                onCheckedChange = viewModel::setAllowBreakSkipping,
+            )
+            RowDivider()
             SwitchRow(
                 title = stringResource(R.string.vibrate_start),
                 description = null,
@@ -531,7 +539,7 @@ private fun DurationPickerDialog(
     onDismiss: () -> Unit,
     onSave: (Int) -> Unit,
 ) {
-    var input by remember(initialValue) { mutableStateOf(initialValue.toString()) }
+    var input by rememberSaveable(initialValue) { mutableStateOf(initialValue.toString()) }
     val parsed = input.toIntOrNull()
     val valid = parsed != null && parsed in range
 

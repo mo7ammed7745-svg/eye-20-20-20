@@ -9,6 +9,7 @@ data class AppSettings(
     val breakSeconds: Int = DEFAULT_BREAK_SECONDS,
     val screenOffGraceMinutes: Int = DEFAULT_GRACE_MINUTES,
     val autoStartNextWork: Boolean = true,
+    val allowBreakSkipping: Boolean = false,
     val vibrateOnBreakStart: Boolean = true,
     val vibrateOnBreakEnd: Boolean = true,
     val voiceAnnouncements: Boolean = true,

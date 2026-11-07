@@ -6,17 +6,25 @@ import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.data.settings.SettingsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
 
-    val settings: StateFlow<AppSettings?> = repository.settings
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = null,
-        )
+    /**
+     * The persisted values are emitted first, so opening Settings does not flash the
+     * factory defaults while DataStore finishes its first read.
+     */
+    val settings: StateFlow<AppSettings> = flow {
+        emit(loadCurrent())
+        emitAll(repository.settings)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AppSettings(),
+    )
 
     fun setWorkMinutes(value: Int) = update { it.copy(workMinutes = value) }
 
@@ -25,6 +33,9 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
     fun setGraceMinutes(value: Int) = update { it.copy(screenOffGraceMinutes = value) }
 
     fun setAutoStart(enabled: Boolean) = update { it.copy(autoStartNextWork = enabled) }
+
+    fun setAllowBreakSkipping(enabled: Boolean) =
+        update { it.copy(allowBreakSkipping = enabled) }
 
     fun setVibrateOnStart(enabled: Boolean) =
         update { it.copy(vibrateOnBreakStart = enabled) }
@@ -41,6 +52,9 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         update { it.copy(keepScreenAwakeDuringBreak = enabled) }
 
     fun setFullscreenBreak(enabled: Boolean) = update { it.copy(fullscreenBreak = enabled) }
+
+    private suspend fun loadCurrent(): AppSettings = runCatching { repository.current() }
+        .getOrDefault(AppSettings())
 
     private fun update(transform: (AppSettings) -> AppSettings) {
         viewModelScope.launch {

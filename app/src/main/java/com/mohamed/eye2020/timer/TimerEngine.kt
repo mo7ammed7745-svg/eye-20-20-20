@@ -182,6 +182,70 @@ class TimerEngine(
     }
 
     /**
+     * Ends the current work session (running or paused) and returns to a ready idle
+     * timer. A live break cannot be stopped this way; use [skipBreak].
+     */
+    @Synchronized
+    fun reset(): List<TimerEvent> {
+        val current = _state.value
+        if (current.phase != TimerPhase.WORK || !current.isActive) return emptyList()
+        _state.value = TimerState.idle(settingsProvider().workMillis)
+        return listOf(TimerEvent.WorkStopped)
+    }
+
+    /**
+     * Leaves an active break before it completes. The break is intentionally not
+     * recorded, and the next work session is armed according to [AppSettings.autoStartNextWork]:
+     * running right away with the screen on, or paused-with-grace when the screen is off.
+     */
+    @Synchronized
+    fun skipBreak(): List<TimerEvent> {
+        val now = clock.realtimeMillis()
+        val wall = clock.wallTimeMillis()
+        val current = _state.value
+        if (current.phase != TimerPhase.BREAK || !current.isActive) return emptyList()
+
+        val settings = settingsProvider()
+        val workDuration = settings.workMillis
+        val events = mutableListOf<TimerEvent>(TimerEvent.BreakSkipped)
+
+        if (!settings.autoStartNextWork) {
+            _state.value = TimerState.idle(workDuration)
+            return events
+        }
+
+        if (!screenOnProvider()) {
+            _state.value = TimerState(
+                phase = TimerPhase.WORK,
+                isActive = true,
+                isRunning = false,
+                remainingMillis = workDuration,
+                totalMillis = workDuration,
+                anchorRealtimeMillis = now,
+                sessionStartedAtMillis = wall,
+                pauseReason = PauseReason.SCREEN_OFF,
+                screenOffAtRealtimeMillis = now,
+                screenOffAtWallMillis = wall,
+            )
+            events += TimerEvent.WorkStartedAfterBreak
+            events += TimerEvent.WorkPausedForScreenOff(workDuration)
+            return events
+        }
+
+        _state.value = TimerState(
+            phase = TimerPhase.WORK,
+            isActive = true,
+            isRunning = true,
+            remainingMillis = workDuration,
+            totalMillis = workDuration,
+            anchorRealtimeMillis = now,
+            sessionStartedAtMillis = wall,
+        )
+        events += TimerEvent.WorkStartedAfterBreak
+        return events
+    }
+
+    /**
      * Called frequently by the application-scoped ticker. It only changes state when a
      * phase actually reaches zero, so there is no per-second write churn.
      */

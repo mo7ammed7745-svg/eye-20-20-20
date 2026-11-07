@@ -14,6 +14,8 @@ class AppSettingsTest {
         assertEquals(20, settings.breakSeconds)
         assertEquals(2, settings.screenOffGraceMinutes)
         assertTrue(settings.autoStartNextWork)
+        // Skipping a break is an explicit opt-in; the default must protect the break.
+        assertTrue(!settings.allowBreakSkipping)
         assertTrue(settings.vibrateOnBreakStart)
         assertTrue(settings.vibrateOnBreakEnd)
         assertTrue(settings.voiceAnnouncements)

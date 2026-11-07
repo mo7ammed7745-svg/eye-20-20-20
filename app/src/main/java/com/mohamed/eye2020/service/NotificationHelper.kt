@@ -108,17 +108,22 @@ class NotificationHelper(private val context: Context) {
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
         if (!isBreak && state.isActive) {
-            if (state.isRunning) {
-                builder.addAction(
-                    R.drawable.ic_pause,
-                    context.getString(R.string.notif_action_pause),
-                    commandPendingIntent(TimerService.ACTION_PAUSE, REQUEST_PAUSE),
-                )
-            } else if (state.pauseReason == PauseReason.USER) {
+            if (state.pauseReason == PauseReason.USER) {
                 builder.addAction(
                     R.drawable.ic_play,
                     context.getString(R.string.notif_action_resume),
                     commandPendingIntent(TimerService.ACTION_RESUME, REQUEST_RESUME),
+                )
+                builder.addAction(
+                    R.drawable.ic_stop,
+                    context.getString(R.string.notif_action_stop),
+                    commandPendingIntent(TimerService.ACTION_STOP, REQUEST_STOP),
+                )
+            } else if (state.isRunning) {
+                builder.addAction(
+                    R.drawable.ic_pause,
+                    context.getString(R.string.notif_action_pause),
+                    commandPendingIntent(TimerService.ACTION_PAUSE, REQUEST_PAUSE),
                 )
             }
         }
@@ -234,5 +239,6 @@ class NotificationHelper(private val context: Context) {
         private const val REQUEST_OPEN_BREAK = 11
         private const val REQUEST_PAUSE = 12
         private const val REQUEST_RESUME = 13
+        private const val REQUEST_STOP = 14
     }
 }
