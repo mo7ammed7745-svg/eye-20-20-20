@@ -85,13 +85,16 @@ class TimerManager(
         }
 
         // Recover a countdown that reached zero while the process was gone, then persist
-        // the corrected state immediately.
+        // the corrected state immediately. ensureServiceRunning brings back the foreground
+        // notification after Android or the maker recreated the process out of band —
+        // without it a restored running timer would have no notification or actions.
         appScope.launch {
             if (powerManager?.isInteractive != false) {
                 dispatchEvents(engine.onScreenOn())
             }
             dispatchEvents(engine.tick())
             persistNow()
+            ensureServiceRunning()
         }
 
         appScope.launch {

@@ -35,7 +35,7 @@
     <string name="overlay_off_title">Break screen may not open automatically</string>
     <string name="overlay_off_body">Allow "Display over other apps" so the break screen can appear over the app you are using.</string>
     <string name="allow_overlay">Allow</string>
-    <string name="reset_snackbar">Work timer reset. The screen was off longer than the grace period.</string>
+    <string name="reset_snackbar">Screen was off past the grace period. Started a fresh timer.</string>
     <string name="pause_snackbar">Work timer paused.</string>
     <string name="resume_snackbar">Work timer resumed.</string>
     <string name="stop_snackbar">Focus session stopped.</string>

@@ -202,6 +202,34 @@ class TimerRecoveryTest {
     }
 
     @Test
+    fun staleScreenOffPauseLeavesAResetArmForAFreshRestart() {
+        val paused = TimerState(
+            phase = TimerPhase.WORK,
+            isActive = true,
+            isRunning = false,
+            remainingMillis = 15 * 60_000L,
+            totalMillis = 20 * 60_000L,
+            anchorRealtimeMillis = savedAt,
+            pauseReason = PauseReason.SCREEN_OFF,
+            screenOffAtRealtimeMillis = savedAt,
+            screenOffAtWallMillis = savedWall,
+        )
+        val restored = TimerRecovery.restore(
+            snapshot = snapshot(paused),
+            settings = settings,
+            nowRealtime = savedAt + 10 * 60_000L,
+            nowWall = savedWall + 10 * 60_000L,
+            screenInteractive = true,
+        )
+
+        assertNotNull(restored)
+        assertFalse(restored!!.isActive)
+        assertFalse(restored.isRunning)
+        assertEquals(PauseReason.SCREEN_OFF_RESET, restored.pauseReason)
+        assertEquals(settings.workMillis, restored.remainingMillis)
+    }
+
+    @Test
     fun missingSnapshotLeavesTheTimerAtItsDefaultState() {
         val restored = TimerRecovery.restore(
             snapshot = null,

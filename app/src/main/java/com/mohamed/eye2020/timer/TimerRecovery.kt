@@ -98,7 +98,11 @@ internal object TimerRecovery {
             restored.pauseReason == PauseReason.SCREEN_OFF &&
             elapsed > SCREEN_OFF_PAUSE_STALE_MS
         ) {
+            // Screen-off pause far outside any grace: the session is over. Keep the
+            // SCREEN_OFF_RESET marker so a later screen-on restarts fresh automatically
+            // instead of leaving a dead "stopped" timer behind.
             return TimerState.idle(settings.workMillis)
+                .copy(pauseReason = PauseReason.SCREEN_OFF_RESET)
         }
         return restored
     }

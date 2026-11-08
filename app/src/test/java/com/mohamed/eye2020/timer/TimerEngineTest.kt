@@ -172,7 +172,7 @@ class TimerEngineTest {
     }
 
     @Test
-    fun screenOffBeyondGraceResetsToFullWorkDuration() {
+    fun screenOffBeyondGraceRestartsWorkFromZero() {
         engine.startOrResumeWork()
         clock.advance(4 * 60_000L)
         screenOn = false
@@ -183,11 +183,44 @@ class TimerEngineTest {
         val events = engine.onScreenOn()
 
         assertTrue(events.any { it is TimerEvent.WorkResetAfterScreenOff })
+        assertTrue(events.contains(TimerEvent.WorkStartedAfterBreak))
         val state = engine.state.value
-        assertFalse(state.isActive)
-        assertFalse(state.isRunning)
+        assertTrue(state.isActive)
+        assertTrue(state.isRunning)
         assertEquals(20 * 60_000L, state.remainingMillis)
-        assertEquals(PauseReason.SCREEN_OFF_RESET, state.pauseReason)
+        assertEquals(20 * 60_000L, state.remainingAt(clock.realtime))
+
+        clock.advance(60_000L)
+        assertEquals(19 * 60_000L, engine.state.value.remainingAt(clock.realtime))
+    }
+
+    @Test
+    fun staleResetArmRestartsWorkFromZeroOnScreenOn() {
+        // The state a killed process leaves behind: an idle arm marked SCREEN_OFF_RESET.
+        engine.startOrResumeWork()
+        clock.advance(4 * 60_000L)
+        screenOn = false
+        engine.onScreenOff()
+        clock.advance(3 * 60_000L)
+        val reset = engine.onScreenOn()
+        assertTrue(reset.any { it is TimerEvent.WorkResetAfterScreenOff })
+
+        // Simulate a process rebuild restoring that arm while the screen is on again.
+        val recoveredEngine = TimerEngine(
+            clock = clock,
+            settingsProvider = { settings },
+            screenOnProvider = { screenOn },
+            initialState = TimerState.idle(settings.workMillis)
+                .copy(pauseReason = PauseReason.SCREEN_OFF_RESET),
+        )
+        screenOn = true
+        val events = recoveredEngine.onScreenOn()
+
+        assertTrue(events.any { it is TimerEvent.WorkResetAfterScreenOff })
+        assertTrue(events.contains(TimerEvent.WorkStartedAfterBreak))
+        val state = recoveredEngine.state.value
+        assertTrue(state.isRunning)
+        assertEquals(20 * 60_000L, state.remainingMillis)
     }
 
     @Test

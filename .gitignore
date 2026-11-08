@@ -20,16 +20,33 @@ out/
 local.properties
 sdk.properties
 
+# Graphify knowledge-graph output (generated; never committed)
+graphify-out/
+
 # Signing material, credentials, and API keys
 *.jks
 *.keystore
 *.p12
+*.pfx
 *.pem
 *.key
+*.ppk
+*.mobileprovision
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
 keystore.properties
 signing.properties
 credentials.properties
 secrets.properties
+service-account*.json
+*service-account*.json
+client_secret*.json
+*credentials*.json
+*secret*.json
+*token*.json
+*.token
 .env
 .env.*
 google-services.json

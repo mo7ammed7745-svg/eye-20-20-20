@@ -142,10 +142,26 @@ class TimerEngine(
         )
     }
 
+    /**
+     * Screen-on after a screen-off pause. Within the grace period the remaining countdown
+     * resumes; past the grace period a fresh work session starts from zero automatically,
+     * so the user never has to open the app and press Start again. A stale
+     * [PauseReason.SCREEN_OFF_RESET] arm (restored from a killed process) also restarts
+     * fresh here.
+     */
     @Synchronized
     fun onScreenOn(): List<TimerEvent> {
         val now = clock.realtimeMillis()
+        val wall = clock.wallTimeMillis()
         val current = _state.value
+
+        if (current.phase == TimerPhase.WORK &&
+            !current.isActive &&
+            current.pauseReason == PauseReason.SCREEN_OFF_RESET
+        ) {
+            return startFreshWorkAfterScreenOff(now, wall, screenOffDurationMillis = 0L)
+        }
+
         if (current.phase != TimerPhase.WORK ||
             !current.isActive ||
             current.isRunning ||
@@ -169,15 +185,30 @@ class TimerEngine(
             return listOf(TimerEvent.WorkResumedAfterScreenOff(current.remainingMillis))
         }
 
-        val fullDuration = settings.workMillis
-        _state.value = TimerState.idle(fullDuration).copy(
-            pauseReason = PauseReason.SCREEN_OFF_RESET,
+        return startFreshWorkAfterScreenOff(now, wall, offDuration ?: 0L)
+    }
+
+    private fun startFreshWorkAfterScreenOff(
+        now: Long,
+        wall: Long,
+        screenOffDurationMillis: Long,
+    ): List<TimerEvent> {
+        val fullDuration = settingsProvider().workMillis
+        _state.value = TimerState(
+            phase = TimerPhase.WORK,
+            isActive = true,
+            isRunning = true,
+            remainingMillis = fullDuration,
+            totalMillis = fullDuration,
+            anchorRealtimeMillis = now,
+            sessionStartedAtMillis = wall,
         )
         return listOf(
             TimerEvent.WorkResetAfterScreenOff(
                 fullDurationMillis = fullDuration,
-                screenOffDurationMillis = offDuration ?: 0L,
+                screenOffDurationMillis = screenOffDurationMillis,
             ),
+            TimerEvent.WorkStartedAfterBreak,
         )
     }
 
