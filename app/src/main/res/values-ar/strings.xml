@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Eye 20-20-20</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">المؤقت</string>
+    <string name="nav_stats">الإحصائيات</string>
+    <string name="nav_settings">الإعدادات</string>
+
+    <!-- Home -->
+    <string name="home_eyebrow">EYE 20-20-20</string>
+    <string name="home_title">امنح عينيك استراحة.</string>
+    <string name="home_subtitle">ركّز 20 دقيقة، ثم انظر إلى شيء يبعد عنك نحو 20 قدمًا (6 أمتار) لمدة 20 ثانية.</string>
+    <string name="status_working">جارٍ العمل</string>
+    <string name="status_break">استراحة</string>
+    <string name="status_paused">متوقف مؤقتًا</string>
+    <string name="status_ready">جاهز</string>
+    <string name="status_working_desc">وقت التركيز. تبدأ الاستراحة تلقائيًا.</string>
+    <string name="status_paused_desc">مؤقت العمل متوقف مؤقتًا.</string>
+    <string name="status_ready_desc">ابدأ جلسة تركيز عندما تكون مستعدًا.</string>
+    <string name="status_screen_off_desc">يستأنف العمل عند إعادة تشغيل الشاشة.</string>
+    <string name="timer_of_total">من %1$s</string>
+    <string name="start_focus">ابدأ جلسة التركيز</string>
+    <string name="pause">إيقاف مؤقت</string>
+    <string name="resume">استئناف</string>
+    <string name="stop">إيقاف</string>
+    <string name="today_title">استراحات مكتملة اليوم</string>
+    <string name="today_hint">لا تُحتسب إلا الاستراحة التي تصل إلى الصفر.</string>
+    <string name="how_it_works">كيف يعمل</string>
+    <string name="how_it_works_body">اعمل لمدة %1$s، ثم انظر إلى شيء يبعد عنك نحو 20 قدمًا (6 أمتار) لمدة %2$s. وكرر ذلك على مدار اليوم.</string>
+    <string name="screen_off_hint">يتوقف العمل مؤقتًا عند إطفاء الشاشة. وتستمر الاستراحة في العد.</string>
+    <string name="notifications_off_title">الإشعارات معطّلة</string>
+    <string name="notifications_off_body">اسمح بالإشعارات حتى يظهر المؤقت الدائم وتنبيهات الاستراحة.</string>
+    <string name="enable_notifications">تفعيل</string>
+    <string name="overlay_off_title">قد لا تفتح شاشة الاستراحة تلقائيًا</string>
+    <string name="overlay_off_body">اسمح بخيار «العرض فوق التطبيقات الأخرى» حتى يمكن لشاشة الاستراحة أن تظهر فوق التطبيق الذي تستخدمه.</string>
+    <string name="allow_overlay">السماح</string>
+    <string name="reset_snackbar">ظلت الشاشة مطفأة أطول من مدة السماح، فبدأ مؤقت جديد من الصفر.</string>
+    <string name="pause_snackbar">توقف مؤقت العمل مؤقتًا.</string>
+    <string name="resume_snackbar">استؤنف مؤقت العمل.</string>
+    <string name="stop_snackbar">توقفت جلسة التركيز.</string>
+    <string name="break_skipped_snackbar">تُخطيت الاستراحة. عودة إلى التركيز.</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">الإحصائيات</string>
+    <string name="stats_subtitle">سجل هادئ للاستراحات التي أنهيتها فعلًا.</string>
+    <string name="today">اليوم</string>
+    <string name="this_week">هذا الأسبوع</string>
+    <string name="weekly_total">الإجمالي الأسبوعي</string>
+    <string name="all_time">منذ البداية</string>
+    <string name="all_time_hint">الاستراحات المكتملة منذ بدء استخدامك التطبيق.</string>
+    <string name="share_report">مشاركة التقرير الأسبوعي</string>
+    <string name="share_report_hint">ينشئ صورة أنيقة لهذا الأسبوع ويفتح نافذة المشاركة في أندرويد.</string>
+    <string name="stats_only_completed">تُحتسب الاستراحات المكتملة فقط. لا أهداف ولا سلاسل ولا مكافآت.</string>
+    <string name="week_range">من %1$s إلى %2$s</string>
+    <string name="no_breaks_yet">لا استراحات بعد</string>
+    <string name="no_breaks_hint">ابدأ جلسة تركيز من تبويب المؤقت. وتظهر الاستراحات المكتملة هنا تلقائيًا.</string>
+    <string name="share_chooser">مشاركة التقرير الأسبوعي</string>
+    <string name="share_subject">تقرير Eye 20-20-20 الأسبوعي</string>
+    <string name="share_failed">تعذر إنشاء صورة التقرير.</string>
+
+    <!-- Weekly report image -->
+    <string name="report_title">تقرير استراحات العين الأسبوعي</string>
+    <string name="report_completed_label">استراحة مكتملة هذا الأسبوع</string>
+    <string name="report_all_time">منذ البداية: %1$d</string>
+    <string name="report_footer_rule">انظر إلى شيء يبعد عنك 20 قدمًا لمدة 20 ثانية، كل 20 دقيقة.</string>
+    <string name="report_footer_only_counted">لا تُحتسب إلا الاستراحات التي تصل إلى الصفر.</string>
+
+    <!-- Duration labels used inside notifications and the how-it-works text. -->
+    <plurals name="label_minutes">
+        <item quantity="zero">%1$d دقيقة</item>
+        <item quantity="one">دقيقة واحدة</item>
+        <item quantity="two">دقيقتان</item>
+        <item quantity="few">%1$d دقائق</item>
+        <item quantity="many">%1$d دقيقة</item>
+        <item quantity="other">%1$d دقيقة</item>
+    </plurals>
+    <plurals name="label_seconds">
+        <item quantity="zero">%1$d ثانية</item>
+        <item quantity="one">ثانية واحدة</item>
+        <item quantity="two">ثانيتان</item>
+        <item quantity="few">%1$d ثوانٍ</item>
+        <item quantity="many">%1$d ثانية</item>
+        <item quantity="other">%1$d ثانية</item>
+    </plurals>
+    <plurals name="label_completed_breaks">
+        <item quantity="zero">لا استراحات مكتملة</item>
+        <item quantity="one">استراحة مكتملة واحدة</item>
+        <item quantity="two">استراحتان مكتملتان</item>
+        <item quantity="few">%1$d استراحات مكتملة</item>
+        <item quantity="many">%1$d استراحة مكتملة</item>
+        <item quantity="other">%1$d استراحة مكتملة</item>
+    </plurals>
+
+    <!-- First-launch setup -->
+    <string name="setup_eyebrow">الإعداد</string>
+    <string name="setup_title">أبقِ استراحاتك في موعدها.</string>
+    <string name="setup_subtitle">يقيّد أندرويد العمل في الخلفية. وتساعد هذه الإعدادات المؤقت وشاشة الاستراحة على مواصلة العمل أثناء استخدامك تطبيقات أخرى. يمكنك تغييرها لاحقًا.</string>
+    <string name="setup_recommended">موصى به</string>
+    <string name="setup_optional">اختياري</string>
+    <string name="setup_notifications_title">الإشعارات</string>
+    <string name="setup_notifications_body">يُبقي الإشعار الدائم العدّ التنازلي مرئيًا ويتيح لك الإيقاف المؤقت أو الاستئناف من لوحة الإشعارات. ويطلب أندرويد 13 والإصدارات الأحدث إذن الإشعارات.</string>
+    <string name="setup_battery_title">استخدام البطارية بلا قيود</string>
+    <string name="setup_battery_body">قد يؤخر أندرويد مؤقتات الخلفية أو يوقفها لتوفير الطاقة. والسماح لهذا التطبيق باستخدام البطارية بلا قيود يجعل الانقطاعات أقل احتمالًا. ولا يضمن ذلك ألا يتوقف التطبيق أبدًا.</string>
+    <string name="setup_overlay_title">العرض فوق التطبيقات الأخرى</string>
+    <string name="setup_overlay_body">اختياري. يتيح فتح شاشة الاستراحة تلقائيًا فوق التطبيق الذي تستخدمه. وبدونه يطلب منك تنبيه بملء الشاشة النقر قبل أن تُفتح شاشة الاستراحة. ويعمل المؤقت بدون هذا الإذن.</string>
+    <string name="setup_allow_notifications">السماح بالإشعارات</string>
+    <string name="setup_allow_overlay">السماح بالعرض فوق التطبيقات</string>
+    <string name="setup_not_set">لم يُضبط بعد</string>
+    <string name="setup_finish">ابدأ استخدام Eye 20-20-20</string>
+    <string name="setup_skip">تخطَّ الآن</string>
+    <string name="setup_later_note">يمكنك تغيير ذلك لاحقًا من الإعدادات ← الخلفية والأذونات.</string>
+    <string name="open_settings">فتح الإعدادات</string>
+    <string name="open_notification_settings">إعدادات الإشعارات</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_subtitle">يؤدي حفظ مدة عمل جديدة إلى إعادة تشغيل مؤقت العمل الحالي. وتنطبق التغييرات الأخرى على الجلسة التالية.</string>
+    <string name="section_timer">المؤقت</string>
+    <string name="work_duration">مدة العمل</string>
+    <string name="work_duration_desc">كم تركّز قبل كل استراحة للعين. يؤدي الحفظ إلى إعادة تشغيل مؤقت العمل.</string>
+    <string name="break_duration">مدة الاستراحة</string>
+    <string name="break_duration_desc">كم تنظر بعيدًا عن الشاشة.</string>
+    <string name="grace_duration">مدة السماح عند إطفاء الشاشة</string>
+    <string name="grace_duration_desc">إذا ظلت الشاشة مطفأة أثناء العمل أطول من هذه المدة، يُعاد ضبط مؤقت العمل.</string>
+    <string name="auto_start">بدء الجلسة التالية تلقائيًا</string>
+    <string name="auto_start_desc">تبدأ جلسة عمل جديدة بمجرد انتهاء الاستراحة.</string>
+    <string name="allow_break_skipping">السماح بتخطي الاستراحات</string>
+    <string name="allow_break_skipping_desc">يضيف زر «متابعة العمل» على شاشة الاستراحة. وهو معطّل افتراضيًا لتبقى الاستراحات محمية.</string>
+    <string name="section_break">سلوك الاستراحة</string>
+    <string name="vibrate_start">الاهتزاز عند بدء الاستراحة</string>
+    <string name="vibrate_end">الاهتزاز عند انتهاء الاستراحة</string>
+    <string name="voice_announcements">الإعلانات الصوتية</string>
+    <string name="voice_announcements_desc">يشغّل تسجيلًا قصيرًا عند بدء الاستراحة وعند استئناف العمل.</string>
+    <string name="announcement_volume">مستوى صوت الإعلانات</string>
+    <string name="volume_percent">%1$d٪</string>
+    <string name="keep_awake">إبقاء الشاشة مضاءة أثناء الاستراحات</string>
+    <string name="keep_awake_desc">يمنع الشاشة من الدخول في وضع السكون أثناء فتح شاشة الاستراحة.</string>
+    <string name="fullscreen_break">استراحة بملء الشاشة</string>
+    <string name="fullscreen_break_desc">يخفي شريطي الحالة والتنقل عندما يسمح أندرويد بذلك.</string>
+    <string name="section_system">الخلفية والأذونات</string>
+    <string name="notifications_setting">الإشعارات</string>
+    <string name="notifications_setting_desc">مطلوبة لإشعار المؤقت الدائم وتنبيهات الاستراحة.</string>
+    <string name="fullscreen_alerts">تنبيهات الاستراحة بملء الشاشة</string>
+    <string name="fullscreen_alerts_desc">تتطلب بعض إصدارات أندرويد صلاحية خاصة قبل أن يتمكن التطبيق من عرض شاشة الاستراحة فوق التطبيقات الأخرى.</string>
+    <string name="overlay_setting">العرض فوق التطبيقات الأخرى</string>
+    <string name="overlay_setting_desc">اختياري. يتيح ظهور شاشة الاستراحة تلقائيًا عند بدء الاستراحة، حتى أثناء استخدامك تطبيقًا آخر. ويعمل المؤقت بدونها. وهذا هو إذن «العرض فوق التطبيقات» المعتاد في أندرويد، وليس إذن إمكانية الوصول.</string>
+    <string name="battery_setting">تحسين البطارية</string>
+    <string name="battery_setting_desc">لمؤقت خلفية أكثر موثوقية، اسمح باستخدام البطارية بلا قيود من إعدادات أندرويد. ولا يزال بإمكان أندرويد إيقاف أي تطبيق بعد الإيقاف القسري أو القيود الصارمة.</string>
+    <string name="open_battery_settings">فتح إعدادات البطارية</string>
+    <string name="battery_unrestricted">بلا قيود</string>
+    <string name="battery_optimized">محسّن</string>
+    <string name="manage">إدارة</string>
+    <string name="allowed">مسموح</string>
+    <string name="not_allowed">غير مسموح</string>
+    <string name="not_required">غير مطلوب في هذا الإصدار من أندرويد</string>
+    <string name="section_about">حول التطبيق</string>
+    <string name="about_body">مؤقت صغير وخاص لقاعدة استراحة العين 20-20-20. وتبقى جميع البيانات على هذا الجهاز.</string>
+    <string name="version_name">الإصدار %1$s</string>
+    <string name="duration_minutes">%1$d د</string>
+    <string name="duration_seconds">%1$d ث</string>
+    <string name="dialog_work_title">مدة العمل</string>
+    <string name="dialog_break_title">مدة الاستراحة</string>
+    <string name="dialog_grace_title">مدة السماح عند إطفاء الشاشة</string>
+    <string name="unit_minutes">دقائق</string>
+    <string name="unit_seconds">ثوانٍ</string>
+    <string name="presets">إعدادات جاهزة</string>
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
+    <string name="invalid_work">أدخل عددًا صحيحًا من 1 إلى 180.</string>
+    <string name="invalid_break">أدخل عددًا صحيحًا من 5 إلى 900.</string>
+    <string name="invalid_grace">أدخل عددًا صحيحًا من 0 إلى 60.</string>
+    <string name="limit_work">1–180 دقيقة</string>
+    <string name="limit_break">5–900 ثانية</string>
+    <string name="limit_grace">0–60 دقيقة</string>
+    <string name="system_permission_note">تفتح هذه الأزرار إعدادات أندرويد. ولا يمنح التطبيق الأذونات من تلقاء نفسه أبدًا.</string>
+    <string name="reliability_note">بإمكان أندرويد إيقاف أي تطبيق بعد الإيقاف القسري أو قيود البطارية الصارمة. وتجعل الخدمة قيد المقدمة الانقطاع أقل احتمالًا، لكن لا يمكن جعله مستحيلًا.</string>
+    <string name="unit_minutes_short">د</string>
+    <string name="unit_seconds_short">ث</string>
+
+    <!-- Break screen -->
+    <string name="break_eyebrow">استراحة العين</string>
+    <string name="break_instruction">انظر إلى شيء يبعد عنك نحو 20 قدمًا (6 أمتار).</string>
+    <string name="break_subinstruction">أرح عينيك. وارمش بلطف.</string>
+    <string name="break_time_remaining">الوقت المتبقي للاستراحة، %1$s</string>
+    <string name="skip_break">متابعة العمل</string>
+
+    <!-- Foreground service notification -->
+    <string name="notif_channel_timer">مؤقت نشط</string>
+    <string name="notif_channel_timer_desc">عدّ تنازلي دائم لجلسة التركيز أو الاستراحة الحالية.</string>
+    <string name="notif_channel_break">تنبيهات الاستراحة</string>
+    <string name="notif_channel_break_desc">تذكير يظهر عند بدء استراحة العين.</string>
+    <string name="notif_working">جارٍ العمل · يتبقى %1$s</string>
+    <string name="notif_paused">العمل متوقف مؤقتًا · يتبقى %1$s</string>
+    <string name="notif_break">استراحة العين · يتبقى %1$s</string>
+    <string name="notif_paused_screen_off">العمل متوقف مؤقتًا أثناء إطفاء الشاشة</string>
+    <string name="notif_paused_screen_off_desc">يستأنف تلقائيًا عند إعادة تشغيل الشاشة.</string>
+    <string name="notif_action_pause">إيقاف مؤقت</string>
+    <string name="notif_action_resume">استئناف</string>
+    <string name="notif_action_stop">إيقاف</string>
+    <string name="notif_alert_title">حان وقت استراحة العين</string>
+    <string name="notif_alert_text">انظر إلى شيء يبعد عنك نحو 20 قدمًا لمدة %1$s.</string>
+    <string name="notif_timer_ready">مؤقت Eye 20-20-20</string>
+
+    <!-- Accessibility -->
+    <string name="cd_timer">المؤقت، يتبقى %1$s</string>
+</resources>

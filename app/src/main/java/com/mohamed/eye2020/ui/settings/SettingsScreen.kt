@@ -45,6 +45,7 @@ import com.mohamed.eye2020.BuildConfig
 import com.mohamed.eye2020.R
 import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.ui.permissions.rememberPermissionSnapshot
+import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import com.mohamed.eye2020.util.SystemSettings
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -68,7 +69,7 @@ fun SettingsScreen(
         Text(
             text = stringResource(R.string.nav_settings).uppercase(),
             style = MaterialTheme.typography.labelMedium,
-            letterSpacing = 3.sp,
+            letterSpacing = letterSpacingForLocale(3.sp),
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer(Modifier.height(10.dp))
@@ -352,7 +353,7 @@ private fun SettingsSection(
         Text(
             text = title,
             style = MaterialTheme.typography.labelMedium,
-            letterSpacing = 2.sp,
+            letterSpacing = letterSpacingForLocale(2.sp),
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(start = 4.dp, bottom = 10.dp),
         )

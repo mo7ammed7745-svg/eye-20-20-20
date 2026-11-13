@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +50,7 @@ import com.mohamed.eye2020.R
 import com.mohamed.eye2020.domain.DayStat
 import com.mohamed.eye2020.domain.WeeklyStats
 import com.mohamed.eye2020.ui.theme.Mint
+import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +75,7 @@ fun StatsScreen(
         Text(
             text = stringResource(R.string.nav_stats).uppercase(),
             style = MaterialTheme.typography.labelMedium,
-            letterSpacing = 3.sp,
+            letterSpacing = letterSpacingForLocale(3.sp),
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer(Modifier.height(10.dp))
@@ -198,7 +200,7 @@ private fun TodayCard(count: Int) {    Card(
                 fontWeight = FontWeight.Light,
             )
             Text(
-                text = stringResource(R.string.completed_breaks, count),
+                text = pluralStringResource(R.plurals.label_completed_breaks, count, count),
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -207,7 +209,7 @@ private fun TodayCard(count: Int) {    Card(
 
 @Composable
 private fun WeeklyCard(stats: WeeklyStats) {
-    val formatter = remember { DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH) }
+    val formatter = remember { DateTimeFormatter.ofPattern("MMM d", Locale.getDefault()) }
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -258,7 +260,11 @@ private fun WeeklyCard(stats: WeeklyStats) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = stringResource(R.string.completed_breaks, stats.weeklyTotal),
+                    text = pluralStringResource(
+                        R.plurals.label_completed_breaks,
+                        stats.weeklyTotal,
+                        stats.weeklyTotal,
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
@@ -312,7 +318,7 @@ private fun WeeklyChart(days: List<DayStat>) {
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = day.label.uppercase(Locale.ENGLISH),
+                    text = day.label.uppercase(Locale.getDefault()),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,

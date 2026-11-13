@@ -16,8 +16,4 @@ object TimeFormat {
             String.format(Locale.US, "%02d:%02d", minutes, seconds)
         }
     }
-
-    fun minutesLabel(minutes: Int): String = if (minutes == 1) "1 minute" else "$minutes minutes"
-
-    fun secondsLabel(seconds: Int): String = if (seconds == 1) "1 second" else "$seconds seconds"
 }

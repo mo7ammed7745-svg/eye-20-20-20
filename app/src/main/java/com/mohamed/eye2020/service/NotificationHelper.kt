@@ -153,7 +153,12 @@ class NotificationHelper(private val context: Context) {
 
     fun buildBreakAlertNotification(state: TimerState): Notification {
         val breakIntent = breakPendingIntent()
-        val duration = TimeFormat.secondsLabel((state.totalMillis / 1_000L).toInt())
+        val seconds = (state.totalMillis / 1_000L).toInt()
+        val duration = context.resources.getQuantityString(
+            R.plurals.label_seconds,
+            seconds,
+            seconds,
+        )
         return NotificationCompat.Builder(context, CHANNEL_BREAK)
             .setSmallIcon(R.drawable.ic_stat_eye)
             .setContentTitle(context.getString(R.string.notif_alert_title))

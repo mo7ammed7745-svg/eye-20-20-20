@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.eye2020.R
+import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import com.mohamed.eye2020.util.PermissionStatus
 import com.mohamed.eye2020.util.SystemSettings
 
@@ -87,7 +88,7 @@ fun SetupScreen(
             Text(
                 text = stringResource(R.string.setup_eyebrow),
                 style = MaterialTheme.typography.labelMedium,
-                letterSpacing = 3.sp,
+                letterSpacing = letterSpacingForLocale(3.sp),
                 color = MaterialTheme.colorScheme.primary,
             )
             Spacer(Modifier.height(10.dp))

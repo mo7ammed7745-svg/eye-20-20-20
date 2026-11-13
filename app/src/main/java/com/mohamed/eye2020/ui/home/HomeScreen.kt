@@ -44,6 +44,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -61,6 +62,7 @@ import com.mohamed.eye2020.timer.PauseReason
 import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.timer.TimerState
 import com.mohamed.eye2020.ui.theme.Mint
+import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import com.mohamed.eye2020.util.SystemSettings
 import com.mohamed.eye2020.util.TimeFormat
 import kotlinx.coroutines.delay
@@ -96,7 +98,7 @@ fun HomeScreen(
         Text(
             text = stringResource(R.string.home_eyebrow),
             style = MaterialTheme.typography.labelMedium,
-            letterSpacing = 3.sp,
+            letterSpacing = letterSpacingForLocale(3.sp),
             color = MaterialTheme.colorScheme.primary,
         )
         Spacer(Modifier.height(10.dp))
@@ -288,7 +290,7 @@ private fun TimerDial(
                     Text(
                         text = status.uppercase(),
                         style = MaterialTheme.typography.labelMedium,
-                        letterSpacing = 2.6.sp,
+                        letterSpacing = letterSpacingForLocale(2.6.sp),
                         color = if (state.isRunning) {
                             MaterialTheme.colorScheme.primary
                         } else {
@@ -541,8 +543,16 @@ private fun HowItWorksCard(settings: AppSettings) {
             Text(
                 text = stringResource(
                     R.string.how_it_works_body,
-                    TimeFormat.minutesLabel(settings.workMinutes),
-                    TimeFormat.secondsLabel(settings.breakSeconds),
+                    pluralStringResource(
+                        R.plurals.label_minutes,
+                        settings.workMinutes,
+                        settings.workMinutes,
+                    ),
+                    pluralStringResource(
+                        R.plurals.label_seconds,
+                        settings.breakSeconds,
+                        settings.breakSeconds,
+                    ),
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

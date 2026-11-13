@@ -37,12 +37,4 @@ class TimeFormatTest {
         assertEquals("1:01:01", TimeFormat.clock(3_661_000L))
         assertEquals("1:02:04", TimeFormat.clock(3_723_999L))
     }
-
-    @Test
-    fun singularAndPluralLabels() {
-        assertEquals("1 minute", TimeFormat.minutesLabel(1))
-        assertEquals("20 minutes", TimeFormat.minutesLabel(20))
-        assertEquals("1 second", TimeFormat.secondsLabel(1))
-        assertEquals("20 seconds", TimeFormat.secondsLabel(20))
-    }
 }
