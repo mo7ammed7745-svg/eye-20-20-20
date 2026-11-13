@@ -8,6 +8,7 @@ import com.mohamed.eye2020.data.db.EyeDatabase
 import com.mohamed.eye2020.data.settings.SettingsRepository
 import com.mohamed.eye2020.data.settings.SetupPreferences
 import com.mohamed.eye2020.data.settings.eyeSettingsDataStore
+import com.mohamed.eye2020.game.GameModeController
 import com.mohamed.eye2020.service.NotificationHelper
 import com.mohamed.eye2020.timer.TimerManager
 import kotlinx.coroutines.CoroutineScope
@@ -36,11 +37,14 @@ class AppContainer(context: Context) {
 
     private val announcementPlayer = AnnouncementPlayer(appContext, applicationScope)
 
+    private val gameModeController = GameModeController(appContext)
+
     val timerManager = TimerManager(
         context = appContext,
         settingsRepository = settingsRepository,
         breakRepository = breakRepository,
         announcementPlayer = announcementPlayer,
+        gameModeController = gameModeController,
         appScope = applicationScope,
     )
 }

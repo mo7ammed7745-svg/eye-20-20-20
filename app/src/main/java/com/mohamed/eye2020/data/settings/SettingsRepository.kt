@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
@@ -49,6 +50,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 preferences[Keys.ANNOUNCEMENT_VOLUME] = next.announcementVolume
                 preferences[Keys.KEEP_AWAKE] = next.keepScreenAwakeDuringBreak
                 preferences[Keys.FULLSCREEN_BREAK] = next.fullscreenBreak
+                preferences[Keys.GAME_MODE_APPS] = next.gameModeApps.toSortedSet()
             }
         }.onFailure { error ->
             Log.w(TAG, "Saving settings failed", error)
@@ -68,6 +70,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             ?: AppSettings.DEFAULT_ANNOUNCEMENT_VOLUME,
         keepScreenAwakeDuringBreak = this[Keys.KEEP_AWAKE] ?: true,
         fullscreenBreak = this[Keys.FULLSCREEN_BREAK] ?: true,
+        gameModeApps = this[Keys.GAME_MODE_APPS]?.toList() ?: emptyList(),
     ).validated()
 
     private object Keys {
@@ -82,6 +85,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val ANNOUNCEMENT_VOLUME = floatPreferencesKey("announcement_volume")
         val KEEP_AWAKE = booleanPreferencesKey("keep_screen_awake_during_break")
         val FULLSCREEN_BREAK = booleanPreferencesKey("fullscreen_break")
+        val GAME_MODE_APPS = stringSetPreferencesKey("game_mode_apps")
     }
 
     private companion object {

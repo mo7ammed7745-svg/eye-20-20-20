@@ -3,6 +3,7 @@ package com.mohamed.eye2020.ui.settings
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -12,12 +13,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +31,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,9 +46,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mohamed.eye2020.BuildConfig
 import com.mohamed.eye2020.R
 import com.mohamed.eye2020.data.settings.AppSettings
+import com.mohamed.eye2020.game.GameAppEntry
+import com.mohamed.eye2020.game.GameModeController
 import com.mohamed.eye2020.ui.permissions.rememberPermissionSnapshot
 import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import com.mohamed.eye2020.util.SystemSettings
@@ -58,234 +68,257 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     var dialog by rememberSaveable { mutableStateOf<DurationField?>(null) }
+    var showGameAppPicker by rememberSaveable { mutableStateOf(false) }
     val permissions = rememberPermissionSnapshot()
+    val usageAccessGranted = rememberUsageAccessGranted()
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.nav_settings).uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            letterSpacing = letterSpacingForLocale(3.sp),
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = stringResource(R.string.settings_title),
-            style = MaterialTheme.typography.headlineLarge,
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.settings_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.nav_settings).uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                letterSpacing = letterSpacingForLocale(3.sp),
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = stringResource(R.string.settings_title),
+                style = MaterialTheme.typography.headlineLarge,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.settings_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
-        Spacer(Modifier.height(28.dp))
-        SettingsSection(title = stringResource(R.string.section_timer)) {
-            DurationRow(
-                title = stringResource(R.string.work_duration),
-                description = stringResource(R.string.work_duration_desc),
-                value = stringResource(R.string.duration_minutes, settings.workMinutes),
-                onClick = { dialog = DurationField.WORK },
-            )
-            RowDivider()
-            DurationRow(
-                title = stringResource(R.string.break_duration),
-                description = stringResource(R.string.break_duration_desc),
-                value = stringResource(R.string.duration_seconds, settings.breakSeconds),
-                onClick = { dialog = DurationField.BREAK },
-            )
-            RowDivider()
-            DurationRow(
-                title = stringResource(R.string.grace_duration),
-                description = stringResource(R.string.grace_duration_desc),
-                value = stringResource(
-                    R.string.duration_minutes,
-                    settings.screenOffGraceMinutes,
-                ),
-                onClick = { dialog = DurationField.GRACE },
-            )
-            RowDivider()
-            SwitchRow(
-                title = stringResource(R.string.auto_start),
-                description = stringResource(R.string.auto_start_desc),
-                checked = settings.autoStartNextWork,
-                onCheckedChange = viewModel::setAutoStart,
-            )
-        }
+            Spacer(Modifier.height(28.dp))
+            SettingsSection(title = stringResource(R.string.section_timer)) {
+                DurationRow(
+                    title = stringResource(R.string.work_duration),
+                    description = stringResource(R.string.work_duration_desc),
+                    value = stringResource(R.string.duration_minutes, settings.workMinutes),
+                    onClick = { dialog = DurationField.WORK },
+                )
+                RowDivider()
+                DurationRow(
+                    title = stringResource(R.string.break_duration),
+                    description = stringResource(R.string.break_duration_desc),
+                    value = stringResource(R.string.duration_seconds, settings.breakSeconds),
+                    onClick = { dialog = DurationField.BREAK },
+                )
+                RowDivider()
+                DurationRow(
+                    title = stringResource(R.string.grace_duration),
+                    description = stringResource(R.string.grace_duration_desc),
+                    value = stringResource(
+                        R.string.duration_minutes,
+                        settings.screenOffGraceMinutes,
+                    ),
+                    onClick = { dialog = DurationField.GRACE },
+                )
+                RowDivider()
+                SwitchRow(
+                    title = stringResource(R.string.auto_start),
+                    description = stringResource(R.string.auto_start_desc),
+                    checked = settings.autoStartNextWork,
+                    onCheckedChange = viewModel::setAutoStart,
+                )
+            }
 
-        Spacer(Modifier.height(24.dp))
-        SettingsSection(title = stringResource(R.string.section_break)) {
-            SwitchRow(
-                title = stringResource(R.string.allow_break_skipping),
-                description = stringResource(R.string.allow_break_skipping_desc),
-                checked = settings.allowBreakSkipping,
-                onCheckedChange = viewModel::setAllowBreakSkipping,
-            )
-            RowDivider()
-            SwitchRow(
-                title = stringResource(R.string.vibrate_start),
-                description = null,
-                checked = settings.vibrateOnBreakStart,
-                onCheckedChange = viewModel::setVibrateOnStart,
-            )
-            RowDivider()
-            SwitchRow(
-                title = stringResource(R.string.vibrate_end),
-                description = null,
-                checked = settings.vibrateOnBreakEnd,
-                onCheckedChange = viewModel::setVibrateOnEnd,
-            )
-            RowDivider()
-            SwitchRow(
-                title = stringResource(R.string.voice_announcements),
-                description = stringResource(R.string.voice_announcements_desc),
-                checked = settings.voiceAnnouncements,
-                onCheckedChange = viewModel::setVoiceAnnouncements,
-            )
-            RowDivider()
-            AnnouncementVolumeRow(
-                value = settings.announcementVolume,
-                enabled = settings.voiceAnnouncements,
-                onValueChangeFinished = viewModel::setAnnouncementVolume,
-            )
-            RowDivider()
-            SwitchRow(
-                title = stringResource(R.string.keep_awake),
-                description = stringResource(R.string.keep_awake_desc),
-                checked = settings.keepScreenAwakeDuringBreak,
-                onCheckedChange = viewModel::setKeepAwake,
-            )
-            RowDivider()
-            SwitchRow(
-                title = stringResource(R.string.fullscreen_break),
-                description = stringResource(R.string.fullscreen_break_desc),
-                checked = settings.fullscreenBreak,
-                onCheckedChange = viewModel::setFullscreenBreak,
-            )
-        }
+            Spacer(Modifier.height(24.dp))
+            SettingsSection(title = stringResource(R.string.section_break)) {
+                SwitchRow(
+                    title = stringResource(R.string.allow_break_skipping),
+                    description = stringResource(R.string.allow_break_skipping_desc),
+                    checked = settings.allowBreakSkipping,
+                    onCheckedChange = viewModel::setAllowBreakSkipping,
+                )
+                RowDivider()
+                SwitchRow(
+                    title = stringResource(R.string.vibrate_start),
+                    description = null,
+                    checked = settings.vibrateOnBreakStart,
+                    onCheckedChange = viewModel::setVibrateOnStart,
+                )
+                RowDivider()
+                SwitchRow(
+                    title = stringResource(R.string.vibrate_end),
+                    description = null,
+                    checked = settings.vibrateOnBreakEnd,
+                    onCheckedChange = viewModel::setVibrateOnEnd,
+                )
+                RowDivider()
+                SwitchRow(
+                    title = stringResource(R.string.voice_announcements),
+                    description = stringResource(R.string.voice_announcements_desc),
+                    checked = settings.voiceAnnouncements,
+                    onCheckedChange = viewModel::setVoiceAnnouncements,
+                )
+                RowDivider()
+                AnnouncementVolumeRow(
+                    value = settings.announcementVolume,
+                    enabled = settings.voiceAnnouncements,
+                    onValueChangeFinished = viewModel::setAnnouncementVolume,
+                )
+                RowDivider()
+                SwitchRow(
+                    title = stringResource(R.string.keep_awake),
+                    description = stringResource(R.string.keep_awake_desc),
+                    checked = settings.keepScreenAwakeDuringBreak,
+                    onCheckedChange = viewModel::setKeepAwake,
+                )
+                RowDivider()
+                SwitchRow(
+                    title = stringResource(R.string.fullscreen_break),
+                    description = stringResource(R.string.fullscreen_break_desc),
+                    checked = settings.fullscreenBreak,
+                    onCheckedChange = viewModel::setFullscreenBreak,
+                )
+            }
 
-        Spacer(Modifier.height(24.dp))
-        SettingsSection(title = stringResource(R.string.section_system)) {
-            SystemRow(
-                title = stringResource(R.string.notifications_setting),
-                description = stringResource(R.string.notifications_setting_desc),
-                status = if (permissions.notificationsGranted) {
-                    stringResource(R.string.allowed)
-                } else {
-                    stringResource(R.string.not_allowed)
-                },
-                statusOk = permissions.notificationsGranted,
-                actionLabel = stringResource(
-                    if (permissions.notificationsGranted) {
-                        R.string.manage
+            Spacer(Modifier.height(24.dp))
+            GameModeSection(
+                settings = settings,
+                viewModel = viewModel,
+                usageAccessGranted = usageAccessGranted,
+                onShowPicker = { showGameAppPicker = true },
+            )
+
+            Spacer(Modifier.height(24.dp))
+            SettingsSection(title = stringResource(R.string.section_system)) {
+                SystemRow(
+                    title = stringResource(R.string.notifications_setting),
+                    description = stringResource(R.string.notifications_setting_desc),
+                    status = if (permissions.notificationsGranted) {
+                        stringResource(R.string.allowed)
                     } else {
-                        R.string.open_settings
+                        stringResource(R.string.not_allowed)
                     },
-                ),
-                onAction = { SystemSettings.openNotificationSettings(context) },
-            )
-            RowDivider()
-            SystemRow(
-                title = stringResource(R.string.battery_setting),
-                description = stringResource(R.string.battery_setting_desc),
-                status = if (permissions.batteryOptimizationIgnored) {
-                    stringResource(R.string.battery_unrestricted)
-                } else {
-                    stringResource(R.string.battery_optimized)
-                },
-                statusOk = permissions.batteryOptimizationIgnored,
-                actionLabel = stringResource(
-                    if (permissions.batteryOptimizationIgnored) {
-                        R.string.manage
-                    } else {
-                        R.string.open_settings
-                    },
-                ),
-                onAction = { SystemSettings.openBatteryOptimizationSettings(context) },
-            )
-            RowDivider()
-            SystemRow(
-                title = stringResource(R.string.overlay_setting),
-                description = stringResource(R.string.overlay_setting_desc),
-                status = if (permissions.overlayGranted) {
-                    stringResource(R.string.allowed)
-                } else {
-                    stringResource(R.string.not_allowed)
-                },
-                statusOk = permissions.overlayGranted,
-                actionLabel = stringResource(
-                    if (permissions.overlayGranted) {
-                        R.string.manage
-                    } else {
-                        R.string.open_settings
-                    },
-                ),
-                onAction = { SystemSettings.openOverlaySettings(context) },
-            )
-            RowDivider()
-            SystemRow(
-                title = stringResource(R.string.fullscreen_alerts),
-                description = stringResource(R.string.fullscreen_alerts_desc),
-                status = if (!permissions.fullScreenIntentSupported) {
-                    stringResource(R.string.not_required)
-                } else if (permissions.fullScreenIntentGranted) {
-                    stringResource(R.string.allowed)
-                } else {
-                    stringResource(R.string.not_allowed)
-                },
-                statusOk = !permissions.fullScreenIntentSupported ||
-                    permissions.fullScreenIntentGranted,
-                actionLabel = if (!permissions.fullScreenIntentSupported) {
-                    null
-                } else {
-                    stringResource(
-                        if (permissions.fullScreenIntentGranted) {
+                    statusOk = permissions.notificationsGranted,
+                    actionLabel = stringResource(
+                        if (permissions.notificationsGranted) {
                             R.string.manage
                         } else {
                             R.string.open_settings
                         },
-                    )
-                },
-                onAction = { SystemSettings.openFullScreenIntentSettings(context) },
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.system_permission_note),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-            )
-        }
-
-        Spacer(Modifier.height(24.dp))
-        SettingsSection(title = stringResource(R.string.section_about)) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text(
-                    text = stringResource(R.string.about_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    onAction = { SystemSettings.openNotificationSettings(context) },
                 )
-                Spacer(Modifier.height(12.dp))
+                RowDivider()
+                SystemRow(
+                    title = stringResource(R.string.battery_setting),
+                    description = stringResource(R.string.battery_setting_desc),
+                    status = if (permissions.batteryOptimizationIgnored) {
+                        stringResource(R.string.battery_unrestricted)
+                    } else {
+                        stringResource(R.string.battery_optimized)
+                    },
+                    statusOk = permissions.batteryOptimizationIgnored,
+                    actionLabel = stringResource(
+                        if (permissions.batteryOptimizationIgnored) {
+                            R.string.manage
+                        } else {
+                            R.string.open_settings
+                        },
+                    ),
+                    onAction = { SystemSettings.openBatteryOptimizationSettings(context) },
+                )
+                RowDivider()
+                SystemRow(
+                    title = stringResource(R.string.overlay_setting),
+                    description = stringResource(R.string.overlay_setting_desc),
+                    status = if (permissions.overlayGranted) {
+                        stringResource(R.string.allowed)
+                    } else {
+                        stringResource(R.string.not_allowed)
+                    },
+                    statusOk = permissions.overlayGranted,
+                    actionLabel = stringResource(
+                        if (permissions.overlayGranted) {
+                            R.string.manage
+                        } else {
+                            R.string.open_settings
+                        },
+                    ),
+                    onAction = { SystemSettings.openOverlaySettings(context) },
+                )
+                RowDivider()
+                SystemRow(
+                    title = stringResource(R.string.fullscreen_alerts),
+                    description = stringResource(R.string.fullscreen_alerts_desc),
+                    status = if (!permissions.fullScreenIntentSupported) {
+                        stringResource(R.string.not_required)
+                    } else if (permissions.fullScreenIntentGranted) {
+                        stringResource(R.string.allowed)
+                    } else {
+                        stringResource(R.string.not_allowed)
+                    },
+                    statusOk = !permissions.fullScreenIntentSupported ||
+                        permissions.fullScreenIntentGranted,
+                    actionLabel = if (!permissions.fullScreenIntentSupported) {
+                        null
+                    } else {
+                        stringResource(
+                            if (permissions.fullScreenIntentGranted) {
+                                R.string.manage
+                            } else {
+                                R.string.open_settings
+                            },
+                        )
+                    },
+                    onAction = { SystemSettings.openFullScreenIntentSettings(context) },
+                )
+                Spacer(Modifier.height(6.dp))
                 Text(
-                    text = stringResource(R.string.reliability_note),
+                    text = stringResource(R.string.system_permission_note),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(14.dp))
-                Text(
-                    text = stringResource(R.string.version_name, BuildConfig.VERSION_NAME),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
                 )
             }
+
+            Spacer(Modifier.height(24.dp))
+            SettingsSection(title = stringResource(R.string.section_about)) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = stringResource(R.string.about_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.reliability_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(14.dp))
+                    Text(
+                        text = stringResource(R.string.version_name, BuildConfig.VERSION_NAME),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
         }
 
-        Spacer(Modifier.height(24.dp))
+        if (showGameAppPicker) {
+            GameAppPickerOverlay(
+                selected = settings.gameModeApps,
+                onConfirm = { nextApps ->
+                    viewModel.setGameModeApps(nextApps)
+                    showGameAppPicker = false
+                },
+                onDismiss = { showGameAppPicker = false },
+            )
+        }
     }
 
     val activeDialog = dialog
@@ -343,6 +376,180 @@ fun SettingsScreen(
 }
 
 private enum class DurationField { WORK, BREAK, GRACE }
+
+/**
+ * Game mode: apps listed here get a quiet break (sound plus a small notification
+ * instead of the full break screen) whenever one of them is in the foreground.
+ * The list can only be edited through the picker, so entries stay clean.
+ */
+@Composable
+private fun GameModeSection(
+    settings: AppSettings,
+    viewModel: SettingsViewModel,
+    usageAccessGranted: Boolean,
+    onShowPicker: () -> Unit,
+) {
+    val context = LocalContext.current
+    SettingsSection(title = stringResource(R.string.section_game_mode)) {
+        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Text(
+                text = stringResource(R.string.game_mode_apps),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(Modifier.height(3.dp))
+            Text(
+                text = stringResource(R.string.game_mode_apps_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(12.dp))
+            if (settings.gameModeApps.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.game_mode_none),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                settings.gameModeApps.forEachIndexed { index, packageName ->
+                    if (index > 0) Spacer(Modifier.height(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = packageName,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                        TextButton(onClick = { viewModel.removeGameModeApp(packageName) }) {
+                            Text(stringResource(R.string.game_mode_remove))
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            TextButton(onClick = onShowPicker) {
+                Text(stringResource(R.string.game_mode_add))
+            }
+            if (settings.gameModeApps.size >= AppSettings.MAX_GAME_APPS) {
+                Text(
+                    text = stringResource(
+                        R.string.game_mode_apps_limit,
+                        AppSettings.MAX_GAME_APPS,
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            if (!usageAccessGranted) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.game_mode_usage_needed),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+                TextButton(onClick = { SystemSettings.openUsageAccessSettings(context) }) {
+                    Text(stringResource(R.string.game_mode_usage_grant))
+                }
+            }
+        }
+    }
+}
+
+/** Recenters the usage-access grant each time the user returns to the app. */
+@Composable
+private fun rememberUsageAccessGranted(): Boolean {
+    val context = LocalContext.current
+    var granted by remember {
+        mutableStateOf(SystemSettings.canSeeUsageApps(context))
+    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                granted = SystemSettings.canSeeUsageApps(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    return granted
+}
+
+/**
+ * Full-screen app chooser shown over the settings page. Selection changes are written
+ * one at a time through onConfirm's pending set, then saved atomically on Done.
+ */
+@Composable
+private fun GameAppPickerOverlay(
+    selected: List<String>,
+    onConfirm: (List<String>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val controller = remember { GameModeController(context) }
+    var apps by remember { mutableStateOf(controller.launchableApps()) }
+    var pendingSelection by remember(selected) { mutableStateOf(selected.toSet()) }
+
+    androidx.compose.material3.Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.game_mode_add_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = { onDismiss() }) {
+                    Text(stringResource(R.string.cancel))
+                }
+                TextButton(onClick = { onConfirm(pendingSelection.toList()) }) {
+                    Text(stringResource(R.string.game_mode_done))
+                }
+            }
+            HorizontalDivider()
+            if (apps.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.game_mode_none),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(20.dp),
+                )
+            }
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(apps, key = { it.packageName }) { app ->
+                    val checked = app.packageName in pendingSelection
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(role = Role.Checkbox) {
+                                if (checked) {
+                                    pendingSelection = pendingSelection - app.packageName
+                                } else if (pendingSelection.size < AppSettings.MAX_GAME_APPS) {
+                                    pendingSelection = pendingSelection + app.packageName
+                                }
+                            }
+                            .padding(horizontal = 20.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(checked = checked, onCheckedChange = null)
+                        Spacer(Modifier.width(16.dp))
+                        Text(
+                            text = app.label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun SettingsSection(

@@ -16,6 +16,12 @@ data class AppSettings(
     val announcementVolume: Float = DEFAULT_ANNOUNCEMENT_VOLUME,
     val keepScreenAwakeDuringBreak: Boolean = true,
     val fullscreenBreak: Boolean = true,
+    /**
+     * Third-party packages that get the quiet break: no full-screen break screen,
+     * only a sound plus a small heads-up notification, while one of these apps is
+     * in the foreground. An empty list means game mode is inactive.
+     */
+    val gameModeApps: List<String> = emptyList(),
 ) {
     val workMillis: Long get() = workMinutes * 60_000L
     val breakMillis: Long get() = breakSeconds * 1_000L
@@ -38,6 +44,7 @@ data class AppSettings(
         } else {
             announcementVolume.coerceIn(0f, 1f)
         },
+        gameModeApps = sanitizeGameApps(gameModeApps),
     )
 
     companion object {
@@ -50,7 +57,24 @@ data class AppSettings(
         val LIMIT_BREAK = 5..900
         val LIMIT_GRACE = 0..60
 
+        const val MAX_GAME_APPS = 50
+        const val MAX_GAME_PACKAGE_LENGTH = 256
+
         private fun sanitize(value: Int, range: IntRange, default: Int): Int =
             if (value in range) value else default
+
+        /**
+         * Game-mode entries come from the package manager, but a hand-edited preference
+         * file must not be able to stuff the list with junk: entry names are trimmed,
+         * blanks and duplicates are dropped, and the list is capped and ordered so the
+         * comparison against the foreground package stays deterministic.
+         */
+        private fun sanitizeGameApps(apps: List<String>): List<String> = apps.asSequence()
+            .map { it.trim().take(MAX_GAME_PACKAGE_LENGTH) }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .sorted()
+            .take(MAX_GAME_APPS)
+            .toList()
     }
 }

@@ -9,6 +9,7 @@ import com.mohamed.eye2020.audio.AnnouncementPlayer
 import com.mohamed.eye2020.data.BreakRepository
 import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.data.settings.SettingsRepository
+import com.mohamed.eye2020.game.GameModeController
 import com.mohamed.eye2020.service.TimerService
 import com.mohamed.eye2020.util.Haptics
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +36,7 @@ class TimerManager(
     private val settingsRepository: SettingsRepository,
     private val breakRepository: BreakRepository,
     private val announcementPlayer: AnnouncementPlayer,
+    private val gameModeController: GameModeController,
     private val appScope: CoroutineScope,
     private val clock: Clock = SystemClockSource,
     private val snapshotStore: TimerSnapshotStore = TimerSnapshotStore(context),
@@ -71,6 +73,18 @@ class TimerManager(
 
     @Volatile
     private var pendingRecordJob: Job? = null
+
+    /**
+     * Set when a break starts while a whitelisted game is in the foreground: the break
+     * still runs and records, but the service suppresses the break screen and posts only
+     * a small heads-up notification. Cleared on every non-quiet break so a leftover flag
+     * can never leak into the next break.
+     */
+    @Volatile
+    private var quietBreakActive = false
+
+    /** Whether the currently running break may show only the quiet game-mode popup. */
+    fun isQuietBreakActive(): Boolean = quietBreakActive
 
     init {
         appScope.launch {
@@ -218,6 +232,11 @@ class TimerManager(
         for (event in events) {
             when (event) {
                 is TimerEvent.BreakStarted -> {
+                    quietBreakActive = runCatching {
+                        // Usage access is the only permission that can be missing here;
+                        // any failure must fall back to the normal break screen.
+                        gameModeController.shouldUseQuietBreak(latestSettings)
+                    }.getOrDefault(false)
                     if (latestSettings.vibrateOnBreakStart) {
                         Haptics.breakStarted(appContext)
                     }
@@ -227,6 +246,7 @@ class TimerManager(
                 }
 
                 is TimerEvent.BreakCompleted -> {
+                    quietBreakActive = false
                     if (latestSettings.vibrateOnBreakEnd) {
                         Haptics.breakEnded(appContext)
                     }
@@ -251,6 +271,12 @@ class TimerManager(
                 else -> Unit
             }
             _events.tryEmit(event)
+            if (event is TimerEvent.BreakSkipped ||
+                event is TimerEvent.WorkStopped ||
+                event is TimerEvent.WorkResetAfterScreenOff
+            ) {
+                quietBreakActive = false
+            }
         }
         persistNow()
     }

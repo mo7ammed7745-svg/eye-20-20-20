@@ -202,6 +202,23 @@
     <string name="notif_alert_text">انظر إلى شيء يبعد عنك نحو 20 قدمًا لمدة %1$s.</string>
     <string name="notif_timer_ready">مؤقت Eye 20-20-20</string>
 
+    <!-- Game mode -->
+    <string name="section_game_mode">وضع الألعاب</string>
+    <string name="game_mode_apps">تطبيقات الاستراحة الهادئة</string>
+    <string name="game_mode_apps_desc">أثناء ظهور أحد هذه التطبيقات على الشاشة، تظهر الاستراحة كإشعار صغير لثانيتين فقط بدلًا من شاشة الاستراحة.</string>
+    <string name="game_mode_add">إضافة تطبيق</string>
+    <string name="game_mode_none">لم يُختر أي تطبيق.</string>
+    <string name="game_mode_add_title">اختر التطبيقات</string>
+    <string name="game_mode_remove">إزالة</string>
+    <string name="game_mode_done">تم</string>
+    <string name="game_mode_usage_needed">يحتاج وضع الألعاب صلاحية «الوصول إلى بيانات الاستخدام» ليعرف أي تطبيق مفتوح. وبدونها تظهر الاستراحات بملء الشاشة دائمًا.</string>
+    <string name="game_mode_usage_grant">منح صلاحية الوصول إلى بيانات الاستخدام</string>
+    <string name="game_mode_usage_allowed">صلاحية الوصول إلى بيانات الاستخدام مسموحة</string>
+    <string name="game_mode_apps_limit">يمكن إدراج حتى %1$d تطبيق.</string>
+
+    <string name="notif_quiet_title">حان وقت إراحة عينيك</string>
+    <string name="notif_quiet_text">أبعد نظرك عن الشاشة لمدة %1$s.</string>
+
     <!-- Accessibility -->
     <string name="cd_timer">المؤقت، يتبقى %1$s</string>
 </resources>

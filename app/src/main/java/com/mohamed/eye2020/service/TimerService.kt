@@ -119,8 +119,14 @@ class TimerService : Service() {
 
                 if (inBreak && !previousInBreak) {
                     if (!BreakActivity.isOpen) {
-                        notifications.postBreakAlert(state)
-                        openBreakScreen()
+                        if (manager.isQuietBreakActive()) {
+                            // Game mode: the game keeps running. Only a small popup
+                            // asks for the 20-second look-away; no break screen.
+                            notifications.postQuietBreakAlert(state)
+                        } else {
+                            notifications.postBreakAlert(state)
+                            openBreakScreen()
+                        }
                     }
                 } else if (!inBreak && previousInBreak) {
                     notifications.cancelBreakAlert()

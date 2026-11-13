@@ -190,6 +190,23 @@
     <string name="notif_alert_text">Look at something approximately 20 feet away for %1$s.</string>
     <string name="notif_timer_ready">Eye 20-20-20 timer</string>
 
+    <!-- Game mode -->
+    <string name="section_game_mode">GAME MODE</string>
+    <string name="game_mode_apps">Quiet break apps</string>
+    <string name="game_mode_apps_desc">While one of these apps is on screen, a break only shows a brief notification for a couple of seconds instead of the break screen.</string>
+    <string name="game_mode_add">Add app</string>
+    <string name="game_mode_none">No apps selected.</string>
+    <string name="game_mode_add_title">Choose apps</string>
+    <string name="game_mode_remove">Remove</string>
+    <string name="game_mode_done">Done</string>
+    <string name="game_mode_usage_needed">Game mode needs "Usage access" to know which app is open. Without it breaks always show the full screen.</string>
+    <string name="game_mode_usage_grant">Grant usage access</string>
+    <string name="game_mode_usage_allowed">Usage access allowed</string>
+    <string name="game_mode_apps_limit">Up to %1$d apps can be listed.</string>
+
+    <string name="notif_quiet_title">Time to rest your eyes</string>
+    <string name="notif_quiet_text">Look away from the screen for %1$s.</string>
+
     <!-- Accessibility -->
     <string name="cd_timer">Timer, %1$s remaining</string>
 </resources>
