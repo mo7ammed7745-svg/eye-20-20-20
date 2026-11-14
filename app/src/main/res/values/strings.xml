@@ -192,9 +192,12 @@
 
     <!-- Game mode -->
     <string name="section_game_mode">GAME MODE</string>
+    <string name="game_mode_title">Game mode</string>
     <string name="game_mode_apps">Quiet break apps</string>
     <string name="game_mode_apps_desc">While one of these apps is on screen, a break only shows a brief notification for a couple of seconds instead of the break screen.</string>
     <string name="game_mode_add">Add app</string>
+    <string name="game_mode_add_game">Add game</string>
+    <string name="game_mode_empty_home">No games added yet.</string>
     <string name="game_mode_none">No apps selected.</string>
     <string name="game_mode_add_title">Choose apps</string>
     <string name="game_mode_remove">Remove</string>

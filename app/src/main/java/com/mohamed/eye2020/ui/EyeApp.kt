@@ -164,6 +164,7 @@ fun EyeApp(
             Destination.TIMER -> HomeScreen(
                 viewModel = homeViewModel,
                 settings = settings,
+                settingsViewModel = settingsViewModel,
                 modifier = Modifier.padding(innerPadding),
             )
 

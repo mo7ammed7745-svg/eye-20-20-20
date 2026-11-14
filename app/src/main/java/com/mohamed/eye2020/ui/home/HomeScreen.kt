@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +62,10 @@ import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.timer.PauseReason
 import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.timer.TimerState
+import com.mohamed.eye2020.ui.game.GameAppPickerOverlay
+import com.mohamed.eye2020.ui.game.rememberGameAppLabels
+import com.mohamed.eye2020.ui.game.rememberUsageAccessGranted
+import com.mohamed.eye2020.ui.settings.SettingsViewModel
 import com.mohamed.eye2020.ui.theme.Mint
 import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import com.mohamed.eye2020.util.SystemSettings
@@ -71,11 +76,14 @@ import kotlinx.coroutines.delay
 fun HomeScreen(
     viewModel: HomeViewModel,
     settings: AppSettings,
+    settingsViewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.timerState.collectAsStateWithLifecycle()
     val todayCount by viewModel.todayCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var showGameAppPicker by rememberSaveable { mutableStateOf(false) }
+    val usageAccessGranted = rememberUsageAccessGranted()
     var notificationsEnabled by remember {
         mutableStateOf(NotificationManagerCompat.from(context).areNotificationsEnabled())
     }
@@ -89,98 +97,204 @@ fun HomeScreen(
 
     val now = rememberRealtimeNow(state)
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.home_eyebrow),
-            style = MaterialTheme.typography.labelMedium,
-            letterSpacing = letterSpacingForLocale(3.sp),
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = stringResource(R.string.home_title),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.home_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        if (!notificationsEnabled) {
-            Spacer(Modifier.height(20.dp))
-            PermissionCard(
-                title = stringResource(R.string.notifications_off_title),
-                body = stringResource(R.string.notifications_off_body),
-                action = stringResource(R.string.enable_notifications),
-                onAction = { SystemSettings.openNotificationSettings(context) },
-            )
-        }
-
-        if (!overlayAllowed) {
-            Spacer(Modifier.height(12.dp))
-            PermissionCard(
-                title = stringResource(R.string.overlay_off_title),
-                body = stringResource(R.string.overlay_off_body),
-                action = stringResource(R.string.allow_overlay),
-                onAction = { SystemSettings.openOverlaySettings(context) },
-            )
-        }
-
-        Spacer(Modifier.height(28.dp))
-        TimerDial(
-            state = state,
-            now = now,
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Spacer(Modifier.height(28.dp))
-        TimerControls(
-            state = state,
-            onPrimaryAction = viewModel::primaryAction,
-            onStopAction = viewModel::stopWork,
-        )
-
-        Spacer(Modifier.height(28.dp))
-        TodayCard(
-            count = todayCount,
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Spacer(Modifier.height(16.dp))
-        HowItWorksCard(settings = settings)
-
-        Spacer(Modifier.height(16.dp))
-        Row(
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.Top,
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 16.dp),
         ) {
-            Icon(
-                imageVector = Icons.Filled.Info,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(top = 2.dp)
-                    .size(18.dp),
-            )
             Text(
-                text = stringResource(R.string.screen_off_hint),
+                text = stringResource(R.string.home_eyebrow),
+                style = MaterialTheme.typography.labelMedium,
+                letterSpacing = letterSpacingForLocale(3.sp),
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = stringResource(R.string.home_title),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.home_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            if (!notificationsEnabled) {
+                Spacer(Modifier.height(20.dp))
+                PermissionCard(
+                    title = stringResource(R.string.notifications_off_title),
+                    body = stringResource(R.string.notifications_off_body),
+                    action = stringResource(R.string.enable_notifications),
+                    onAction = { SystemSettings.openNotificationSettings(context) },
+                )
+                }
+
+            if (!overlayAllowed) {
+                Spacer(Modifier.height(12.dp))
+                PermissionCard(
+                    title = stringResource(R.string.overlay_off_title),
+                    body = stringResource(R.string.overlay_off_body),
+                    action = stringResource(R.string.allow_overlay),
+                    onAction = { SystemSettings.openOverlaySettings(context) },
+                )
+            }
+
+            Spacer(Modifier.height(28.dp))
+            TimerDial(
+                state = state,
+                now = now,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(Modifier.height(28.dp))
+            TimerControls(
+                state = state,
+                onPrimaryAction = viewModel::primaryAction,
+                onStopAction = viewModel::stopWork,
+            )
+
+            Spacer(Modifier.height(28.dp))
+            GameModeCard(
+                settings = settings,
+                usageAccessGranted = usageAccessGranted,
+                onAddApp = { showGameAppPicker = true },
+                onRemoveApp = settingsViewModel::removeGameModeApp,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(Modifier.height(28.dp))
+            TodayCard(
+                count = todayCount,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(Modifier.height(16.dp))
+            HowItWorksCard(settings = settings)
+
+            Spacer(Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .size(18.dp),
+                )
+                Text(
+                    text = stringResource(R.string.screen_off_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+        }
+
+        if (showGameAppPicker) {
+            GameAppPickerOverlay(
+                selected = settings.gameModeApps,
+                onConfirm = { nextApps ->
+                    settingsViewModel.setGameModeApps(nextApps)
+                    showGameAppPicker = false
+                },
+                onDismiss = { showGameAppPicker = false },
+            )
+        }
+    }
+}
+
+/**
+ * Game mode lives on the home page so the picked games stay visible at a glance:
+ * add and remove straight from here, with the usage-access grant only when missing.
+ */
+@Composable
+private fun GameModeCard(
+    settings: AppSettings,
+    usageAccessGranted: Boolean,
+    onAddApp: () -> Unit,
+    onRemoveApp: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = stringResource(R.string.game_mode_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(Modifier.height(3.dp))
+            Text(
+                text = stringResource(R.string.game_mode_apps_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Spacer(Modifier.height(12.dp))
+            if (settings.gameModeApps.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.game_mode_empty_home),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                val labels = rememberGameAppLabels(settings.gameModeApps)
+                settings.gameModeApps.forEachIndexed { index, packageName ->
+                    if (index > 0) Spacer(Modifier.height(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = labels[packageName] ?: packageName,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                        TextButton(onClick = { onRemoveApp(packageName) }) {
+                            Text(stringResource(R.string.game_mode_remove))
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            TextButton(onClick = onAddApp) {
+                Text(stringResource(R.string.game_mode_add_game))
+            }
+            if (settings.gameModeApps.size >= AppSettings.MAX_GAME_APPS) {
+                Text(
+                    text = stringResource(
+                        R.string.game_mode_apps_limit,
+                        AppSettings.MAX_GAME_APPS,
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            if (!usageAccessGranted) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.game_mode_usage_needed),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+                TextButton(onClick = { SystemSettings.openUsageAccessSettings(context) }) {
+                    Text(stringResource(R.string.game_mode_usage_grant))
+                }
+            }
         }
-
-        Spacer(Modifier.height(24.dp))
     }
 }
 

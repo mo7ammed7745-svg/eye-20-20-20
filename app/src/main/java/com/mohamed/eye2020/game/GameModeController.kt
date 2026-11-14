@@ -93,6 +93,16 @@ class GameModeController(private val context: Context) {
             gameModeApps = settings.gameModeApps,
             foregroundPackage = currentForegroundPackage(),
         )
+
+    /**
+     * Friendly display name of an installed app ("Candy Crush" instead of
+     * com.king.candycrushsaga). Falls back to the package name if the app was
+     * uninstalled since it was added, so the list never shows blanks.
+     */
+    fun labelFor(packageName: String): String = runCatching {
+        val pm = context.packageManager
+        pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
+    }.getOrDefault(packageName)
 }
 
 /** One row of the game-mode app picker. */

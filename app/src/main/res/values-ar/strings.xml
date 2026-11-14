@@ -204,9 +204,12 @@
 
     <!-- Game mode -->
     <string name="section_game_mode">وضع الألعاب</string>
+    <string name="game_mode_title">وضع الألعاب</string>
     <string name="game_mode_apps">تطبيقات الاستراحة الهادئة</string>
     <string name="game_mode_apps_desc">أثناء ظهور أحد هذه التطبيقات على الشاشة، تظهر الاستراحة كإشعار صغير لثانيتين فقط بدلًا من شاشة الاستراحة.</string>
     <string name="game_mode_add">إضافة تطبيق</string>
+    <string name="game_mode_add_game">إضافة لعبة</string>
+    <string name="game_mode_empty_home">لم تُضف أي ألعاب بعد.</string>
     <string name="game_mode_none">لم يُختر أي تطبيق.</string>
     <string name="game_mode_add_title">اختر التطبيقات</string>
     <string name="game_mode_remove">إزالة</string>

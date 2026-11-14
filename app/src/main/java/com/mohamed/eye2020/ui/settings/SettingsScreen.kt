@@ -13,15 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +28,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -46,14 +42,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mohamed.eye2020.BuildConfig
 import com.mohamed.eye2020.R
 import com.mohamed.eye2020.data.settings.AppSettings
-import com.mohamed.eye2020.game.GameAppEntry
-import com.mohamed.eye2020.game.GameModeController
+import com.mohamed.eye2020.ui.game.GameAppPickerOverlay
+import com.mohamed.eye2020.ui.game.rememberGameAppLabels
+import com.mohamed.eye2020.ui.game.rememberUsageAccessGranted
 import com.mohamed.eye2020.ui.permissions.rememberPermissionSnapshot
 import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import com.mohamed.eye2020.util.SystemSettings
@@ -410,12 +404,13 @@ private fun GameModeSection(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else {
+                val labels = rememberGameAppLabels(settings.gameModeApps)
                 settings.gameModeApps.forEachIndexed { index, packageName ->
                     if (index > 0) Spacer(Modifier.height(10.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = packageName,
+                                text = labels[packageName] ?: packageName,
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
@@ -448,103 +443,6 @@ private fun GameModeSection(
                 )
                 TextButton(onClick = { SystemSettings.openUsageAccessSettings(context) }) {
                     Text(stringResource(R.string.game_mode_usage_grant))
-                }
-            }
-        }
-    }
-}
-
-/** Recenters the usage-access grant each time the user returns to the app. */
-@Composable
-private fun rememberUsageAccessGranted(): Boolean {
-    val context = LocalContext.current
-    var granted by remember {
-        mutableStateOf(SystemSettings.canSeeUsageApps(context))
-    }
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                granted = SystemSettings.canSeeUsageApps(context)
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-    return granted
-}
-
-/**
- * Full-screen app chooser shown over the settings page. Selection changes are written
- * one at a time through onConfirm's pending set, then saved atomically on Done.
- */
-@Composable
-private fun GameAppPickerOverlay(
-    selected: List<String>,
-    onConfirm: (List<String>) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val context = LocalContext.current
-    val controller = remember { GameModeController(context) }
-    var apps by remember { mutableStateOf(controller.launchableApps()) }
-    var pendingSelection by remember(selected) { mutableStateOf(selected.toSet()) }
-
-    androidx.compose.material3.Surface(
-        color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.game_mode_add_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f),
-                )
-                TextButton(onClick = { onDismiss() }) {
-                    Text(stringResource(R.string.cancel))
-                }
-                TextButton(onClick = { onConfirm(pendingSelection.toList()) }) {
-                    Text(stringResource(R.string.game_mode_done))
-                }
-            }
-            HorizontalDivider()
-            if (apps.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.game_mode_none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(20.dp),
-                )
-            }
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(apps, key = { it.packageName }) { app ->
-                    val checked = app.packageName in pendingSelection
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(role = Role.Checkbox) {
-                                if (checked) {
-                                    pendingSelection = pendingSelection - app.packageName
-                                } else if (pendingSelection.size < AppSettings.MAX_GAME_APPS) {
-                                    pendingSelection = pendingSelection + app.packageName
-                                }
-                            }
-                            .padding(horizontal = 20.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(checked = checked, onCheckedChange = null)
-                        Spacer(Modifier.width(16.dp))
-                        Text(
-                            text = app.label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
                 }
             }
         }
