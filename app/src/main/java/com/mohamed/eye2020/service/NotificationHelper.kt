@@ -199,6 +199,51 @@ class NotificationHelper(private val context: Context) {
     }
 
     /**
+     * Heads-up warning posted ten seconds before a break starts, so the user can finish
+     * what they are doing instead of being interrupted mid-action. It is a normal
+     * notification (no full-screen intent), slides down over the current app, and removes
+     * itself after a few seconds.
+     */
+    fun buildBreakSoonNotification(remainingMillis: Long): Notification {
+        val seconds = ((remainingMillis + 999L) / 1_000L).toInt().coerceAtLeast(1)
+        return NotificationCompat.Builder(context, CHANNEL_BREAK)
+            .setSmallIcon(R.drawable.ic_stat_eye)
+            .setContentTitle(context.getString(R.string.notif_soon_title, seconds))
+            .setContentText(context.getString(R.string.notif_soon_text))
+            .setContentIntent(mainPendingIntent())
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setShowWhen(false)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setTimeoutAfter(BREAK_SOON_VISIBLE_MILLIS)
+            .build()
+    }
+
+    fun postBreakSoonAlert(remainingMillis: Long) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        runCatching {
+            NotificationManagerCompat.from(context)
+                .notify(NOTIFICATION_ID_BREAK_SOON, buildBreakSoonNotification(remainingMillis))
+        }
+    }
+
+    fun cancelBreakSoonAlert() {
+        runCatching {
+            NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID_BREAK_SOON)
+        }
+    }
+
+    /**
      * Game-mode popup: a plain heads-up banner without the full-screen intent, so the
      * running game is never covered by the break screen. Tapping it opens the app
      * instead of the break screen. The banner slides down from the top, is removed
@@ -301,9 +346,13 @@ class NotificationHelper(private val context: Context) {
         const val CHANNEL_BREAK = "break_alerts"
         const val NOTIFICATION_ID_TIMER = 1001
         const val NOTIFICATION_ID_BREAK_ALERT = 1002
+        const val NOTIFICATION_ID_BREAK_SOON = 1003
 
         /** How long the quiet game-mode banner stays visible before it slides away. */
         const val QUIET_ALERT_VISIBLE_MILLIS = 2_000L
+
+        /** How long the "break in 10 seconds" heads-up stays before it clears itself. */
+        const val BREAK_SOON_VISIBLE_MILLIS = 8_000L
 
         private const val REQUEST_OPEN_MAIN = 10
         private const val REQUEST_OPEN_BREAK = 11

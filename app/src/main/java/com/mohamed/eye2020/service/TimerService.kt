@@ -15,6 +15,7 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.mohamed.eye2020.BreakActivity
 import com.mohamed.eye2020.EyeApplication
+import com.mohamed.eye2020.timer.BreakWarningPolicy
 import com.mohamed.eye2020.timer.TimerManager
 import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.timer.TimerState
@@ -43,6 +44,10 @@ class TimerService : Service() {
     // command that created it (for example a notification Resume action).
     private var commandReceived = false
     private lateinit var breakWakeLock: PowerManager.WakeLock
+    // Which work session already received its "break in 10 seconds" warning, so the
+    // 500 ms observer loop posts it exactly once.
+    private var warnedSessionStart = Long.MIN_VALUE
+    private var breakSoonPosted = false
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -96,6 +101,7 @@ class TimerService : Service() {
 
     override fun onDestroy() {
         notifications.cancelBreakAlert()
+        notifications.cancelBreakSoonAlert()
         if (receiverRegistered) {
             runCatching { unregisterReceiver(screenReceiver) }
             receiverRegistered = false
@@ -114,8 +120,10 @@ class TimerService : Service() {
             while (isActive) {
                 val state = manager.state.value
                 val inBreak = state.phase == TimerPhase.BREAK && state.isActive
+                val remaining = state.remainingAt(SystemClock.elapsedRealtime())
 
                 updateWakeLock(state)
+                updateBreakSoonWarning(state, remaining)
 
                 if (inBreak && !previousInBreak) {
                     if (!BreakActivity.isOpen) {
@@ -162,6 +170,32 @@ class TimerService : Service() {
         } else if (!needed && breakWakeLock.isHeld) {
             breakWakeLock.release()
             Log.i(TAG, "Wake lock released")
+        }
+    }
+
+    /**
+     * Ten seconds before a break begins, drop a heads-up banner so the user can finish
+     * what they are doing. Posted once per work session and removed as soon as the break
+     * starts (or the work stops), so it never lingers.
+     */
+    private fun updateBreakSoonWarning(state: TimerState, remainingMillis: Long) {
+        val alreadyWarned = warnedSessionStart == state.sessionStartedAtMillis
+        val shouldWarn = BreakWarningPolicy.shouldWarn(
+            phase = state.phase,
+            isActive = state.isActive,
+            isRunning = state.isRunning,
+            remainingMillis = remainingMillis,
+            alreadyWarned = alreadyWarned,
+        )
+        if (shouldWarn) {
+            warnedSessionStart = state.sessionStartedAtMillis
+            notifications.postBreakSoonAlert(remainingMillis)
+            breakSoonPosted = true
+        } else if (breakSoonPosted &&
+            (state.phase != TimerPhase.WORK || !state.isActive || !state.isRunning)
+        ) {
+            notifications.cancelBreakSoonAlert()
+            breakSoonPosted = false
         }
     }
 

@@ -40,11 +40,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.eye2020.BuildConfig
 import com.mohamed.eye2020.R
 import com.mohamed.eye2020.data.settings.AppSettings
+import com.mohamed.eye2020.game.GameAppEntry
+import com.mohamed.eye2020.ui.game.GameAppIcon
 import com.mohamed.eye2020.ui.game.GameAppPickerOverlay
 import com.mohamed.eye2020.ui.game.rememberGameAppLabels
 import com.mohamed.eye2020.ui.game.rememberUsageAccessGranted
@@ -407,13 +410,20 @@ private fun GameModeSection(
                 val labels = rememberGameAppLabels(settings.gameModeApps)
                 settings.gameModeApps.forEachIndexed { index, packageName ->
                     if (index > 0) Spacer(Modifier.height(10.dp))
+                    val label = labels[packageName] ?: packageName
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = labels[packageName] ?: packageName,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
+                        GameAppIcon(
+                            entry = GameAppEntry(packageName, label),
+                            size = 38,
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
                         TextButton(onClick = { viewModel.removeGameModeApp(packageName) }) {
                             Text(stringResource(R.string.game_mode_remove))
                         }

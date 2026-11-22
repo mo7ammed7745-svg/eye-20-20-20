@@ -18,6 +18,16 @@
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- Android 11+ hides other installed apps unless they are declared here. Without
+         this entry the game-mode picker only sees a handful of apps instead of every
+         launcher app on the phone. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
     <application
         android:name=".EyeApplication"
         android:allowBackup="true"
@@ -29,11 +39,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Eye2020">
 
+        <!-- Its own task affinity is deliberate: the break screen opens in a separate
+             task over whatever app is in use, so closing it at the end of the break
+             returns the user to that app instead of to Eye 20-20-20. -->
         <activity
             android:name=".BreakActivity"
             android:exported="false"
+            android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:showWhenLocked="true"
+            android:taskAffinity="com.mohamed.eye2020.break"
             android:theme="@style/Theme.Eye2020.Break" />
 
         <activity

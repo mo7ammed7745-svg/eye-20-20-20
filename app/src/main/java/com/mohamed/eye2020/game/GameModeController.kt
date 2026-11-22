@@ -5,8 +5,10 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Process
 import com.mohamed.eye2020.data.settings.AppSettings
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * The pure decision part of game mode, kept free of Android so it is unit-testable:
@@ -23,6 +25,20 @@ object GameModePolicy {
         if (foregroundPackage == null) return false
         return foregroundPackage in gameModeApps
     }
+
+    /**
+     * Narrows the installed-app list for the picker search box. Matching is case
+     * insensitive and also looks inside the package name, so "youtube" finds the app
+     * even when the label is in another language. An empty query keeps the whole list.
+     */
+    fun filterApps(apps: List<GameAppEntry>, query: String): List<GameAppEntry> {
+        val needle = query.trim().lowercase()
+        if (needle.isEmpty()) return apps
+        return apps.filter { app ->
+            app.label.lowercase().contains(needle) ||
+                app.packageName.lowercase().contains(needle)
+        }
+    }
 }
 
 /**
@@ -31,6 +47,8 @@ object GameModePolicy {
  * the caller must treat a missing permission as "game mode inactive".
  */
 class GameModeController(private val context: Context) {
+
+    private val iconCache = ConcurrentHashMap<String, Drawable?>()
 
     fun isUsageAccessGranted(): Boolean {
         val appOps = context.getSystemService(AppOpsManager::class.java) ?: return false
@@ -66,7 +84,11 @@ class GameModeController(private val context: Context) {
         return latest
     }
 
-    /** The launchable apps the game-mode picker can offer, sorted by label. */
+    /**
+     * The launchable apps the game-mode picker can offer, sorted by label. The manifest
+     * declares a launcher <queries> entry, otherwise Android 11+ hides most installed
+     * apps from this call and the picker would look almost empty.
+     */
     fun launchableApps(): List<GameAppEntry> {
         val launcherIntent = Intent(Intent.ACTION_MAIN)
             .addCategory(Intent.CATEGORY_LAUNCHER)
@@ -103,6 +125,20 @@ class GameModeController(private val context: Context) {
         val pm = context.packageManager
         pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
     }.getOrDefault(packageName)
+
+    /**
+     * The launcher icon of an installed app, cached because the picker asks for it on
+     * every scroll. Null when the app is gone or exposes no icon, so the UI can draw a
+     * letter placeholder instead.
+     */
+    fun iconFor(packageName: String): Drawable? {
+        if (iconCache.containsKey(packageName)) return iconCache[packageName]
+        val icon = runCatching {
+            context.packageManager.getApplicationIcon(packageName)
+        }.getOrNull()
+        iconCache[packageName] = icon
+        return icon
+    }
 }
 
 /** One row of the game-mode app picker. */

@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -51,6 +53,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationManagerCompat
@@ -59,9 +62,11 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamed.eye2020.R
 import com.mohamed.eye2020.data.settings.AppSettings
+import com.mohamed.eye2020.game.GameAppEntry
 import com.mohamed.eye2020.timer.PauseReason
 import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.timer.TimerState
+import com.mohamed.eye2020.ui.game.GameAppIcon
 import com.mohamed.eye2020.ui.game.GameAppPickerOverlay
 import com.mohamed.eye2020.ui.game.rememberGameAppLabels
 import com.mohamed.eye2020.ui.game.rememberUsageAccessGranted
@@ -126,6 +131,7 @@ fun HomeScreen(
             if (!notificationsEnabled) {
                 Spacer(Modifier.height(20.dp))
                 PermissionCard(
+                    icon = Icons.Filled.Notifications,
                     title = stringResource(R.string.notifications_off_title),
                     body = stringResource(R.string.notifications_off_body),
                     action = stringResource(R.string.enable_notifications),
@@ -136,6 +142,7 @@ fun HomeScreen(
             if (!overlayAllowed) {
                 Spacer(Modifier.height(12.dp))
                 PermissionCard(
+                    icon = Icons.Filled.Info,
                     title = stringResource(R.string.overlay_off_title),
                     body = stringResource(R.string.overlay_off_body),
                     action = stringResource(R.string.allow_overlay),
@@ -256,13 +263,20 @@ private fun GameModeCard(
                 val labels = rememberGameAppLabels(settings.gameModeApps)
                 settings.gameModeApps.forEachIndexed { index, packageName ->
                     if (index > 0) Spacer(Modifier.height(10.dp))
+                    val label = labels[packageName] ?: packageName
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = labels[packageName] ?: packageName,
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
+                        GameAppIcon(
+                            entry = GameAppEntry(packageName, label),
+                            size = 38,
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
                         TextButton(onClick = { onRemoveApp(packageName) }) {
                             Text(stringResource(R.string.game_mode_remove))
                         }
@@ -555,6 +569,7 @@ private fun TimerControls(
 
 @Composable
 private fun PermissionCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     body: String,
     action: String,
@@ -571,6 +586,21 @@ private fun PermissionCard(
             modifier = Modifier.padding(start = 18.dp, top = 14.dp, end = 8.dp, bottom = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.08f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(21.dp),
+                )
+            }
+            Spacer(Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,

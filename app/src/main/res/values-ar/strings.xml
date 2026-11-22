@@ -109,6 +109,11 @@
     <string name="setup_not_set">لم يُضبط بعد</string>
     <string name="setup_finish">ابدأ استخدام Eye 20-20-20</string>
     <string name="setup_skip">تخطَّ الآن</string>
+    <string name="setup_progress">%1$d من %2$d جاهز</string>
+    <string name="setup_all_ready">كل شيء جاهز</string>
+    <string name="setup_fsi_title">تنبيهات بملء الشاشة</string>
+    <string name="setup_fsi_body">يحتاج أندرويد 14 والإصدارات الأحدث إلى هذا الخيار الإضافي لتُفتح شاشة الاستراحة فوق التطبيقات الأخرى دون نقر. وبدونه يؤدي النقر على الإشعار إلى فتح الاستراحة.</string>
+    <string name="setup_allow_fsi">السماح بالتنبيهات بملء الشاشة</string>
     <string name="setup_later_note">يمكنك تغيير ذلك لاحقًا من الإعدادات ← الخلفية والأذونات.</string>
     <string name="open_settings">فتح الإعدادات</string>
     <string name="open_notification_settings">إعدادات الإشعارات</string>
@@ -200,6 +205,10 @@
     <string name="notif_action_stop">إيقاف</string>
     <string name="notif_alert_title">حان وقت استراحة العين</string>
     <string name="notif_alert_text">انظر إلى شيء يبعد عنك نحو 20 قدمًا لمدة %1$s.</string>
+    <string name="notif_soon_title">الاستراحة بعد %1$d ث</string>
+    <string name="notif_soon_text">أكمل ما تفعله الآن، ثم أبعد نظرك مسافة 20 قدمًا.</string>
+    <string name="break_soon_title">الاستراحة بعد %1$d ث</string>
+    <string name="break_soon_text">أكمل ما تفعله الآن، ثم أبعد نظرك مسافة 20 قدمًا.</string>
     <string name="notif_timer_ready">مؤقت Eye 20-20-20</string>
 
     <!-- Game mode -->
@@ -214,6 +223,10 @@
     <string name="game_mode_add_title">اختر التطبيقات</string>
     <string name="game_mode_remove">إزالة</string>
     <string name="game_mode_done">تم</string>
+    <string name="game_mode_search_hint">ابحث عن تطبيق</string>
+    <string name="game_mode_clear_search">مسح البحث</string>
+    <string name="game_mode_selected_count">المحدد: %1$d</string>
+    <string name="game_mode_no_results">لا توجد تطبيقات تطابق «%1$s».</string>
     <string name="game_mode_usage_needed">يحتاج وضع الألعاب صلاحية «الوصول إلى بيانات الاستخدام» ليعرف أي تطبيق مفتوح. وبدونها تظهر الاستراحات بملء الشاشة دائمًا.</string>
     <string name="game_mode_usage_grant">منح صلاحية الوصول إلى بيانات الاستخدام</string>
     <string name="game_mode_usage_allowed">صلاحية الوصول إلى بيانات الاستخدام مسموحة</string>

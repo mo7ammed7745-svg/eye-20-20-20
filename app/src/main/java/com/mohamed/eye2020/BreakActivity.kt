@@ -1,6 +1,5 @@
 package com.mohamed.eye2020
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -56,7 +55,7 @@ class BreakActivity : ComponentActivity() {
         applyWindowOptions(AppSettings())
 
         if (!container.timerManager.isInBreak()) {
-            finish()
+            closeAfterBreak()
             return
         }
 
@@ -87,7 +86,7 @@ class BreakActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 container.timerManager.state.collect { state ->
                     if (state.phase != TimerPhase.BREAK || !state.isActive) {
-                        openMainAndFinish()
+                        closeAfterBreak()
                     }
                 }
             }
@@ -113,15 +112,21 @@ class BreakActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-    private fun openMainAndFinish() {
+    /**
+     * Ends the break screen without taking the user into the app. When the screen runs
+     * in its own task (the normal case, opened over another app) the whole task is
+     * removed, so Android reveals the app the user was using before the break. When the
+     * screen shares the app's task (opened from inside Eye 20-20-20) a plain finish
+     * returns to the main screen.
+     */
+    private fun closeAfterBreak() {
         if (closing) return
         closing = true
-        startActivity(
-            Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            },
-        )
-        finish()
+        if (isTaskRoot) {
+            finishAndRemoveTask()
+        } else {
+            finish()
+        }
     }
 
     private fun applyWindowOptions(settings: AppSettings) {
