@@ -40,7 +40,6 @@
     <string name="resume_snackbar">Work timer resumed.</string>
     <string name="stop_snackbar">Focus session stopped.</string>
     <string name="break_skipped_snackbar">Break skipped. Back to focus.</string>
-    <string name="completed_breaks">%1$d completed breaks</string>
 
     <!-- Statistics -->
     <string name="stats_title">Statistics</string>
@@ -60,6 +59,27 @@
     <string name="share_subject">Eye 20-20-20 weekly report</string>
     <string name="share_failed">Could not create the report image.</string>
 
+    <!-- Weekly report image -->
+    <string name="report_title">Weekly eye-break report</string>
+    <string name="report_completed_label">completed breaks this week</string>
+    <string name="report_all_time">All time: %1$d</string>
+    <string name="report_footer_rule">Look 20 feet away for 20 seconds, every 20 minutes.</string>
+    <string name="report_footer_only_counted">Only breaks that reach zero are counted.</string>
+
+    <!-- Duration labels used inside notifications and the how-it-works text. -->
+    <plurals name="label_minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="label_seconds">
+        <item quantity="one">%1$d second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <plurals name="label_completed_breaks">
+        <item quantity="one">%1$d completed break</item>
+        <item quantity="other">%1$d completed breaks</item>
+    </plurals>
+
     <!-- First-launch setup -->
     <string name="setup_eyebrow">SETUP</string>
     <string name="setup_title">Keep your breaks on time.</string>
@@ -77,7 +97,13 @@
     <string name="setup_not_set">Not set up</string>
     <string name="setup_finish">Start using Eye 20-20-20</string>
     <string name="setup_skip">Skip for now</string>
+    <string name="setup_progress">%1$d of %2$d ready</string>
+    <string name="setup_all_ready">All set</string>
+    <string name="setup_fsi_title">Full-screen break alerts</string>
+    <string name="setup_fsi_body">Android 14 and later needs this extra switch so the break screen can open over other apps without a tap. Without it, a tap on the notification opens the break.</string>
+    <string name="setup_allow_fsi">Allow full-screen alerts</string>
     <string name="setup_later_note">You can change these later in Settings → Background &amp; Permissions.</string>
+    <string name="settings_setup_guide">Open the setup guide</string>
     <string name="open_settings">Open settings</string>
     <string name="open_notification_settings">Notification settings</string>
 
@@ -96,6 +122,14 @@
     <string name="allow_break_skipping">Allow skipping breaks</string>
     <string name="allow_break_skipping_desc">Adds a "Continue working" button on the break screen. Off by default so breaks stay protected.</string>
     <string name="section_break">BREAK BEHAVIOR</string>
+    <string name="section_before_break">BEFORE A BREAK</string>
+    <string name="break_warning">Countdown before a break</string>
+    <string name="break_warning_desc">Shows a small pop-up over the app you are using during the last seconds of focus, so you can finish what you are doing.</string>
+    <string name="break_warning_length">Countdown length</string>
+    <string name="break_warning_length_desc">How many seconds before the break the pop-up appears.</string>
+    <string name="dialog_break_warning_title">Countdown length</string>
+    <string name="limit_break_warning">5–60 seconds</string>
+    <string name="invalid_break_warning">Enter a whole number from 5 to 60.</string>
     <string name="vibrate_start">Vibrate when a break starts</string>
     <string name="vibrate_end">Vibrate when a break ends</string>
     <string name="voice_announcements">Voice announcements</string>
@@ -158,6 +192,8 @@
     <string name="notif_channel_timer_desc">Ongoing countdown for the current focus or break session.</string>
     <string name="notif_channel_break">Break alerts</string>
     <string name="notif_channel_break_desc">Reminder shown when an eye break begins.</string>
+    <string name="notif_channel_soon">Break countdown</string>
+    <string name="notif_channel_soon_desc">Pop-up a few seconds before an eye break starts.</string>
     <string name="notif_working">Working · %1$s left</string>
     <string name="notif_paused">Work paused · %1$s left</string>
     <string name="notif_break">Eye break · %1$s left</string>
@@ -168,7 +204,35 @@
     <string name="notif_action_stop">Stop</string>
     <string name="notif_alert_title">Time for an eye break</string>
     <string name="notif_alert_text">Look at something approximately 20 feet away for %1$s.</string>
+    <string name="notif_soon_title">Break in %1$d s</string>
+    <string name="notif_soon_text">Finish this thought, then look 20 feet away.</string>
+    <string name="break_soon_title">Break in %1$d s</string>
+    <string name="break_soon_text">Finish this thought, then look 20 feet away.</string>
     <string name="notif_timer_ready">Eye 20-20-20 timer</string>
+
+    <!-- Game mode -->
+    <string name="section_game_mode">GAME MODE</string>
+    <string name="game_mode_title">Game mode</string>
+    <string name="game_mode_apps">Quiet break apps</string>
+    <string name="game_mode_apps_desc">While one of these apps is on screen, a break only shows a brief notification for a couple of seconds instead of the break screen.</string>
+    <string name="game_mode_add">Add app</string>
+    <string name="game_mode_add_game">Add game</string>
+    <string name="game_mode_empty_home">No games added yet.</string>
+    <string name="game_mode_none">No apps selected.</string>
+    <string name="game_mode_add_title">Choose apps</string>
+    <string name="game_mode_remove">Remove</string>
+    <string name="game_mode_done">Done</string>
+    <string name="game_mode_search_hint">Search apps</string>
+    <string name="game_mode_clear_search">Clear search</string>
+    <string name="game_mode_selected_count">%1$d selected</string>
+    <string name="game_mode_no_results">No apps match “%1$s”.</string>
+    <string name="game_mode_usage_needed">Game mode needs "Usage access" to know which app is open. Without it breaks always show the full screen.</string>
+    <string name="game_mode_usage_grant">Grant usage access</string>
+    <string name="game_mode_usage_allowed">Usage access allowed</string>
+    <string name="game_mode_apps_limit">Up to %1$d apps can be listed.</string>
+
+    <string name="notif_quiet_title">Time to rest your eyes</string>
+    <string name="notif_quiet_text">Look away from the screen for %1$s.</string>
 
     <!-- Accessibility -->
     <string name="cd_timer">Timer, %1$s remaining</string>

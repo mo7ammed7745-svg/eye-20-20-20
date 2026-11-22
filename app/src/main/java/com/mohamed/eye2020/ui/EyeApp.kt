@@ -3,7 +3,10 @@ package com.mohamed.eye2020.ui
 import android.app.Activity
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -27,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -128,56 +132,69 @@ fun EyeApp(
         }
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                tonalElevation = 0.dp,
-            ) {
-                Destination.entries.forEachIndexed { index, destination ->
-                    val label = stringResource(destination.labelRes)
-                    NavigationBarItem(
-                        selected = selected == index,
-                        onClick = { selected = index },
-                        icon = {
-                            Icon(
-                                imageVector = destination.icon,
-                                contentDescription = null,
-                            )
-                        },
-                        label = { Text(label) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        ),
-                    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            bottomBar = {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    tonalElevation = 0.dp,
+                ) {
+                    Destination.entries.forEachIndexed { index, destination ->
+                        val label = stringResource(destination.labelRes)
+                        NavigationBarItem(
+                            selected = selected == index,
+                            onClick = { selected = index },
+                            icon = {
+                                Icon(
+                                    imageVector = destination.icon,
+                                    contentDescription = null,
+                                )
+                            },
+                            label = { Text(label) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                    }
                 }
+            },
+        ) { innerPadding ->
+            when (Destination.entries[selected]) {
+                Destination.TIMER -> HomeScreen(
+                    viewModel = homeViewModel,
+                    settings = settings,
+                    settingsViewModel = settingsViewModel,
+                    modifier = Modifier.padding(innerPadding),
+                )
+
+                Destination.STATS -> StatsScreen(
+                    viewModel = statsViewModel,
+                    modifier = Modifier.padding(innerPadding),
+                )
+
+                Destination.SETTINGS -> SettingsScreen(
+                    settings = settings,
+                    viewModel = settingsViewModel,
+                    onOpenSetupGuide = { setupCompleted = false },
+                    modifier = Modifier.padding(innerPadding),
+                )
             }
-        },
-    ) { innerPadding ->
-        when (Destination.entries[selected]) {
-            Destination.TIMER -> HomeScreen(
-                viewModel = homeViewModel,
-                settings = settings,
-                modifier = Modifier.padding(innerPadding),
-            )
-
-            Destination.STATS -> StatsScreen(
-                viewModel = statsViewModel,
-                modifier = Modifier.padding(innerPadding),
-            )
-
-            Destination.SETTINGS -> SettingsScreen(
-                settings = settings,
-                viewModel = settingsViewModel,
-                modifier = Modifier.padding(innerPadding),
-            )
         }
+
+        // Sits above the tabs so the last seconds of work are visible everywhere.
+        BreakSoonBanner(
+            state = timerState,
+            warningLeadMillis = settings.breakWarningMillis,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding(),
+        )
     }
 }
 

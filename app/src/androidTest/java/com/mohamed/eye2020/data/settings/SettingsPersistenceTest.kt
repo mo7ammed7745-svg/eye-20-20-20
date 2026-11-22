@@ -41,6 +41,7 @@ class SettingsPersistenceTest {
                     announcementVolume = 0.35f,
                     keepScreenAwakeDuringBreak = false,
                     fullscreenBreak = false,
+                    gameModeApps = listOf("com.example.game", "com.other.app"),
                 )
             }
 
@@ -54,6 +55,10 @@ class SettingsPersistenceTest {
             assertEquals(0.35f, reloaded.announcementVolume, 0.001f)
             assertFalse(reloaded.keepScreenAwakeDuringBreak)
             assertFalse(reloaded.fullscreenBreak)
+            assertEquals(
+                listOf("com.example.game", "com.other.app"),
+                reloaded.gameModeApps,
+            )
 
             assertTrue(file.exists())
             assertTrue(file.length() > 0L)

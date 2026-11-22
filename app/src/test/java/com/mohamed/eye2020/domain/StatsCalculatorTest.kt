@@ -4,6 +4,7 @@ import com.mohamed.eye2020.data.db.BreakRecord
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -42,7 +43,7 @@ class StatsCalculatorTest {
             record(monday.plusDays(7), id = 10),
         )
 
-        val stats = StatsCalculator.calculate(records, now, zone)
+        val stats = StatsCalculator.calculate(records, now, zone, Locale.ENGLISH)
 
         assertEquals(monday, stats.weekStart)
         assertEquals(monday.plusDays(6), stats.weekEnd)

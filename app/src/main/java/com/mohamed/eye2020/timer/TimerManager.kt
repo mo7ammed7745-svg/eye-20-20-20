@@ -9,7 +9,10 @@ import com.mohamed.eye2020.audio.AnnouncementPlayer
 import com.mohamed.eye2020.data.BreakRepository
 import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.data.settings.SettingsRepository
+import com.mohamed.eye2020.game.GameModeController
+import com.mohamed.eye2020.service.NotificationHelper
 import com.mohamed.eye2020.service.TimerService
+import com.mohamed.eye2020.util.AppVisibility
 import com.mohamed.eye2020.util.Haptics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +38,8 @@ class TimerManager(
     private val settingsRepository: SettingsRepository,
     private val breakRepository: BreakRepository,
     private val announcementPlayer: AnnouncementPlayer,
+    private val gameModeController: GameModeController,
+    private val notificationHelper: NotificationHelper,
     private val appScope: CoroutineScope,
     private val clock: Clock = SystemClockSource,
     private val snapshotStore: TimerSnapshotStore = TimerSnapshotStore(context),
@@ -71,6 +76,26 @@ class TimerManager(
 
     @Volatile
     private var pendingRecordJob: Job? = null
+
+    /**
+     * Set when a break starts while a whitelisted game is in the foreground: the break
+     * still runs and records, but the service suppresses the break screen and posts only
+     * a small heads-up notification. Cleared on every non-quiet break so a leftover flag
+     * can never leak into the next break.
+     */
+    @Volatile
+    private var quietBreakActive = false
+
+    // Which work session already received its pre-break pop-up, so the ticker posts it
+    // exactly once. Kept here, not in the service, so the warning does not depend on the
+    // foreground service surviving.
+    @Volatile
+    private var warnedSessionStart = Long.MIN_VALUE
+    @Volatile
+    private var breakSoonPosted = false
+
+    /** Whether the currently running break may show only the quiet game-mode popup. */
+    fun isQuietBreakActive(): Boolean = quietBreakActive
 
     init {
         appScope.launch {
@@ -111,21 +136,25 @@ class TimerManager(
 
     fun pauseWork() {
         dispatchEvents(engine.pauseWork())
+        updateBreakSoonWarning()
     }
 
     /** Ends the current work session and returns to the ready idle timer. */
     fun stopWork() {
         dispatchEvents(engine.reset())
+        updateBreakSoonWarning()
     }
 
     /** Leaves an active break early without recording it. */
     fun skipBreak() {
         dispatchEvents(engine.skipBreak())
         ensureServiceRunning()
+        updateBreakSoonWarning()
     }
 
     fun onScreenOff() {
         dispatchEvents(engine.onScreenOff())
+        updateBreakSoonWarning()
     }
 
     fun onScreenOn() {
@@ -197,10 +226,44 @@ class TimerManager(
                 val running = engine.state.value.isRunning
                 if (running) {
                     dispatchEvents(engine.tick())
+                    updateBreakSoonWarning()
                     persistIfDue()
                 }
                 delay(if (running) TICK_INTERVAL_MS else IDLE_INTERVAL_MS)
             }
+        }
+    }
+
+    /**
+     * Posts the "break is coming" pop-up during the last seconds of work, using the
+     * user's chosen countdown length. Runs from the timer ticker rather than the service,
+     * so a service restart cannot silence the warning. Cancelled as soon as the break
+     * starts or the session stops.
+     */
+    private fun updateBreakSoonWarning() {
+        val state = engine.state.value
+        val remaining = state.remainingAt(clock.realtimeMillis())
+        val shouldWarn = BreakWarningPolicy.shouldWarn(
+            phase = state.phase,
+            isActive = state.isActive,
+            isRunning = state.isRunning,
+            remainingMillis = remaining,
+            warningLeadMillis = latestSettings.breakWarningMillis,
+            alreadyWarned = warnedSessionStart == state.sessionStartedAtMillis,
+        )
+        if (shouldWarn) {
+            warnedSessionStart = state.sessionStartedAtMillis
+            // Inside the app the banner is already visible; posting the notification too
+            // would show the same countdown twice.
+            if (!AppVisibility.isForeground) {
+                notificationHelper.postBreakSoonAlert(remaining)
+            }
+            breakSoonPosted = true
+        } else if (breakSoonPosted &&
+            (state.phase != TimerPhase.WORK || !state.isActive || !state.isRunning)
+        ) {
+            notificationHelper.cancelBreakSoonAlert()
+            breakSoonPosted = false
         }
     }
 
@@ -218,6 +281,11 @@ class TimerManager(
         for (event in events) {
             when (event) {
                 is TimerEvent.BreakStarted -> {
+                    quietBreakActive = runCatching {
+                        // Usage access is the only permission that can be missing here;
+                        // any failure must fall back to the normal break screen.
+                        gameModeController.shouldUseQuietBreak(latestSettings)
+                    }.getOrDefault(false)
                     if (latestSettings.vibrateOnBreakStart) {
                         Haptics.breakStarted(appContext)
                     }
@@ -227,6 +295,7 @@ class TimerManager(
                 }
 
                 is TimerEvent.BreakCompleted -> {
+                    quietBreakActive = false
                     if (latestSettings.vibrateOnBreakEnd) {
                         Haptics.breakEnded(appContext)
                     }
@@ -251,6 +320,12 @@ class TimerManager(
                 else -> Unit
             }
             _events.tryEmit(event)
+            if (event is TimerEvent.BreakSkipped ||
+                event is TimerEvent.WorkStopped ||
+                event is TimerEvent.WorkResetAfterScreenOff
+            ) {
+                quietBreakActive = false
+            }
         }
         persistNow()
     }

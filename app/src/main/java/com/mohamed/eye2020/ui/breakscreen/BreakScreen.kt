@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.eye2020.R
 import com.mohamed.eye2020.timer.TimerState
+import com.mohamed.eye2020.ui.theme.letterSpacingForLocale
 import com.mohamed.eye2020.util.TimeFormat
 import kotlinx.coroutines.delay
 
@@ -80,7 +81,7 @@ fun BreakScreen(
             Text(
                 text = stringResource(R.string.break_eyebrow),
                 style = MaterialTheme.typography.labelMedium,
-                letterSpacing = 5.sp,
+                letterSpacing = letterSpacingForLocale(5.sp),
                 color = BreakMuted,
             )
             Spacer(Modifier.height(36.dp))

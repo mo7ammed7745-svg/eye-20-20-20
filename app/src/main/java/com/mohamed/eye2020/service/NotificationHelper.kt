@@ -10,6 +10,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -56,7 +58,22 @@ class NotificationHelper(private val context: Context) {
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
 
-        manager.createNotificationChannels(listOf(timerChannel, breakChannel))
+        // Its own channel on purpose: a silent notification never gets a heads-up
+        // banner on Android, so the pre-break countdown needs sound and vibration to
+        // pop up over other apps.
+        val breakSoonChannel = NotificationChannel(
+            CHANNEL_BREAK_SOON,
+            context.getString(R.string.notif_channel_soon),
+            NotificationManager.IMPORTANCE_HIGH,
+        ).apply {
+            description = context.getString(R.string.notif_channel_soon_desc)
+            setShowBadge(false)
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0L, 180L)
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        }
+
+        manager.createNotificationChannels(listOf(timerChannel, breakChannel, breakSoonChannel))
     }
 
     fun buildTimerNotification(
@@ -153,7 +170,12 @@ class NotificationHelper(private val context: Context) {
 
     fun buildBreakAlertNotification(state: TimerState): Notification {
         val breakIntent = breakPendingIntent()
-        val duration = TimeFormat.secondsLabel((state.totalMillis / 1_000L).toInt())
+        val seconds = (state.totalMillis / 1_000L).toInt()
+        val duration = context.resources.getQuantityString(
+            R.plurals.label_seconds,
+            seconds,
+            seconds,
+        )
         return NotificationCompat.Builder(context, CHANNEL_BREAK)
             .setSmallIcon(R.drawable.ic_stat_eye)
             .setContentTitle(context.getString(R.string.notif_alert_title))
@@ -186,6 +208,112 @@ class NotificationHelper(private val context: Context) {
     }
 
     fun cancelBreakAlert() {
+        runCatching {
+            NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID_BREAK_ALERT)
+        }
+    }
+
+    /**
+     * Heads-up warning posted ten seconds before a break starts, so the user can finish
+     * what they are doing instead of being interrupted mid-action. It is a normal
+     * notification (no full-screen intent), slides down over the current app, and removes
+     * itself after a few seconds.
+     */
+    fun buildBreakSoonNotification(remainingMillis: Long): Notification {
+        val seconds = ((remainingMillis + 999L) / 1_000L).toInt().coerceAtLeast(1)
+        return NotificationCompat.Builder(context, CHANNEL_BREAK_SOON)
+            .setSmallIcon(R.drawable.ic_stat_eye)
+            .setContentTitle(context.getString(R.string.notif_soon_title, seconds))
+            .setContentText(context.getString(R.string.notif_soon_text))
+            .setContentIntent(mainPendingIntent())
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setShowWhen(false)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setVibrate(longArrayOf(0L, 180L))
+            // Stays just past the break start; the service also cancels it explicitly.
+            .setTimeoutAfter(remainingMillis.coerceAtLeast(1_000L) + 3_000L)
+            .build()
+    }
+
+    fun postBreakSoonAlert(remainingMillis: Long) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        runCatching {
+            NotificationManagerCompat.from(context)
+                .notify(NOTIFICATION_ID_BREAK_SOON, buildBreakSoonNotification(remainingMillis))
+        }
+    }
+
+    fun cancelBreakSoonAlert() {
+        runCatching {
+            NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID_BREAK_SOON)
+        }
+    }
+
+    /**
+     * Game-mode popup: a plain heads-up banner without the full-screen intent, so the
+     * running game is never covered by the break screen. Tapping it opens the app
+     * instead of the break screen. The banner slides down from the top, is removed
+     * again after a couple of seconds, and the rest of the countdown runs quietly.
+     */
+    fun buildQuietBreakNotification(state: TimerState): Notification {
+        val seconds = (state.totalMillis / 1_000L).toInt()
+        val duration = context.resources.getQuantityString(
+            R.plurals.label_seconds,
+            seconds,
+            seconds,
+        )
+        return NotificationCompat.Builder(context, CHANNEL_BREAK)
+            .setSmallIcon(R.drawable.ic_stat_eye)
+            .setContentTitle(context.getString(R.string.notif_quiet_title))
+            .setContentText(context.getString(R.string.notif_quiet_text, duration))
+            .setContentIntent(mainPendingIntent())
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setShowWhen(false)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .build()
+    }
+
+    /**
+     * Posts the quiet game-mode banner and schedules its removal about two seconds
+     * later, so it behaves like a brief slide-down popup instead of a lingering
+     * notification while the game keeps running.
+     */
+    fun postQuietBreakAlert(state: TimerState) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        val posted = runCatching {
+            NotificationManagerCompat.from(context)
+                .notify(NOTIFICATION_ID_BREAK_ALERT, buildQuietBreakNotification(state))
+        }.isSuccess
+        if (posted) {
+            // Drop any stale removal first so a fresh banner can never be cut short.
+            quietAlertHandler.removeCallbacks(removeQuietAlert)
+            quietAlertHandler.postDelayed(removeQuietAlert, QUIET_ALERT_VISIBLE_MILLIS)
+        }
+    }
+
+    private val quietAlertHandler = Handler(Looper.getMainLooper())
+    private val removeQuietAlert = Runnable {
         runCatching {
             NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID_BREAK_ALERT)
         }
@@ -232,8 +360,13 @@ class NotificationHelper(private val context: Context) {
     companion object {
         const val CHANNEL_TIMER = "active_timer"
         const val CHANNEL_BREAK = "break_alerts"
+        const val CHANNEL_BREAK_SOON = "break_countdown"
         const val NOTIFICATION_ID_TIMER = 1001
         const val NOTIFICATION_ID_BREAK_ALERT = 1002
+        const val NOTIFICATION_ID_BREAK_SOON = 1003
+
+        /** How long the quiet game-mode banner stays visible before it slides away. */
+        const val QUIET_ALERT_VISIBLE_MILLIS = 2_000L
 
         private const val REQUEST_OPEN_MAIN = 10
         private const val REQUEST_OPEN_BREAK = 11

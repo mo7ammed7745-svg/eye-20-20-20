@@ -23,6 +23,33 @@ class AppSettingsTest {
         assertEquals(20 * 60_000L, settings.workMillis)
         assertEquals(20_000L, settings.breakMillis)
         assertEquals(120_000L, settings.graceMillis)
+        assertTrue(settings.breakWarningEnabled)
+        assertEquals(10, settings.breakWarningSeconds)
+        assertEquals(10_000L, settings.breakWarningMillis)
+    }
+
+    @Test
+    fun breakWarningCanBeSwitchedOffAndIsClamped() {
+        assertEquals(
+            0L,
+            AppSettings(breakWarningEnabled = false).validated().breakWarningMillis,
+        )
+        assertEquals(
+            AppSettings.DEFAULT_BREAK_WARNING_SECONDS,
+            AppSettings(breakWarningSeconds = 1).validated().breakWarningSeconds,
+        )
+        assertEquals(
+            AppSettings.DEFAULT_BREAK_WARNING_SECONDS,
+            AppSettings(breakWarningSeconds = 999).validated().breakWarningSeconds,
+        )
+        assertEquals(
+            5,
+            AppSettings(breakWarningSeconds = 5).validated().breakWarningSeconds,
+        )
+        assertEquals(
+            60,
+            AppSettings(breakWarningSeconds = 60).validated().breakWarningSeconds,
+        )
     }
 
     @Test
@@ -68,5 +95,38 @@ class AppSettingsTest {
         assertEquals(180, settings.workMinutes)
         assertEquals(900, settings.breakSeconds)
         assertEquals(0, settings.screenOffGraceMinutes)
+    }
+
+    @Test
+    fun gameModeAppsAreTrimmedDedupedSortedAndCapped() {
+        val settings = AppSettings(
+            gameModeApps = listOf(
+                "  com.example.game  ",
+                "",
+                "com.example.game",
+                "com.other.app",
+            ),
+        ).validated()
+
+        assertEquals(listOf("com.example.game", "com.other.app"), settings.gameModeApps)
+    }
+
+    @Test
+    fun gameModeAppsRespectTheHardCap() {
+        val many = List(60) { "com.example.app$it" }
+        val settings = AppSettings(gameModeApps = many).validated()
+
+        assertEquals(AppSettings.MAX_GAME_APPS, settings.gameModeApps.size)
+    }
+
+    @Test
+    fun quietBreakOnlyWhenListedAppIsForeground() {
+        val apps = listOf("com.example.game")
+        val policy = com.mohamed.eye2020.game.GameModePolicy
+
+        assertEquals(false, policy.shouldUseQuietBreak(apps, null))
+        assertEquals(false, policy.shouldUseQuietBreak(emptyList(), "com.example.game"))
+        assertEquals(false, policy.shouldUseQuietBreak(apps, "com.other.app"))
+        assertEquals(true, policy.shouldUseQuietBreak(apps, "com.example.game"))
     }
 }

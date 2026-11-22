@@ -43,6 +43,7 @@ object StatsCalculator {
         records: List<BreakRecord>,
         nowMillis: Long,
         zone: ZoneId = ZoneId.systemDefault(),
+        locale: Locale = Locale.getDefault(),
     ): WeeklyStats {
         val today = Instant.ofEpochMilli(nowMillis).atZone(zone).toLocalDate()
         val weekStart = weekStart(today)
@@ -62,7 +63,7 @@ object StatsCalculator {
             val date = weekStart.plusDays(offset)
             DayStat(
                 date = date,
-                label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale),
                 count = counts[date] ?: 0,
             )
         }

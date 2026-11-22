@@ -10,6 +10,7 @@ import android.graphics.RectF
 import android.graphics.Typeface
 import android.net.Uri
 import androidx.core.content.FileProvider
+import com.mohamed.eye2020.R
 import com.mohamed.eye2020.domain.WeeklyStats
 import java.io.File
 import java.io.FileOutputStream
@@ -22,11 +23,11 @@ object WeeklyReportGenerator {
     private const val HEIGHT = 1440
     private const val PADDING = 96f
 
-    private val dateFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH)
+    private const val REPORT_DATE_PATTERN = "MMM d"
 
     fun create(context: Context, stats: WeeklyStats, allTimeCount: Int): Uri {
         val bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)
-        drawReport(bitmap, stats, allTimeCount)
+        drawReport(bitmap, stats, allTimeCount, context)
 
         val reportsDir = File(context.cacheDir, "reports").apply { mkdirs() }
         val file = File(reportsDir, "eye2020-week-${stats.weekStart}.png")
@@ -51,7 +52,12 @@ object WeeklyReportGenerator {
         }
     }
 
-    private fun drawReport(bitmap: Bitmap, stats: WeeklyStats, allTimeCount: Int) {
+    private fun drawReport(
+        bitmap: Bitmap,
+        stats: WeeklyStats,
+        allTimeCount: Int,
+        context: Context,
+    ) {
         val canvas = Canvas(bitmap)
         canvas.drawColor(Color.parseColor("#0B1114"))
 
@@ -72,8 +78,9 @@ object WeeklyReportGenerator {
         var y = 130f
         canvas.drawText("EYE 20-20-20", PADDING, y, labelPaint)
         y += 84f
-        canvas.drawText("Weekly eye-break report", PADDING, y, titlePaint)
+        canvas.drawText(context.getString(R.string.report_title), PADDING, y, titlePaint)
         y += 56f
+        val dateFormatter = DateTimeFormatter.ofPattern(REPORT_DATE_PATTERN, Locale.getDefault())
         canvas.drawText(
             "${dateFormatter.format(stats.weekStart)} – ${dateFormatter.format(stats.weekEnd)}",
             PADDING,
@@ -84,9 +91,19 @@ object WeeklyReportGenerator {
         canvas.drawRect(PADDING, y, WIDTH - PADDING, y + 2f, paint(color = line))
         y += 100f
 
-        canvas.drawText(stats.weeklyTotal.toString(), PADDING, y + 70f, bigNumberPaint)
-        canvas.drawText("completed breaks this week", PADDING + 250f, y + 42f, bigLabelPaint)
-        canvas.drawText("All time: $allTimeCount", PADDING + 250f, y + 84f, dayPaint)
+        canvas.drawText(number(stats.weeklyTotal), PADDING, y + 70f, bigNumberPaint)
+        canvas.drawText(
+            context.getString(R.string.report_completed_label),
+            PADDING + 250f,
+            y + 42f,
+            bigLabelPaint,
+        )
+        canvas.drawText(
+            context.getString(R.string.report_all_time, allTimeCount),
+            PADDING + 250f,
+            y + 84f,
+            dayPaint,
+        )
         y += 180f
 
         drawChart(
@@ -104,13 +121,13 @@ object WeeklyReportGenerator {
         val footerY = HEIGHT - 150f
         canvas.drawRect(PADDING, footerY - 70f, WIDTH - PADDING, footerY - 68f, paint(color = line))
         canvas.drawText(
-            "Look 20 feet away for 20 seconds, every 20 minutes.",
+            context.getString(R.string.report_footer_rule),
             PADDING,
             footerY,
             footerPaint,
         )
         canvas.drawText(
-            "Only breaks that reach zero are counted.",
+            context.getString(R.string.report_footer_only_counted),
             PADDING,
             footerY + 42f,
             footerPaint,
@@ -153,12 +170,15 @@ object WeeklyReportGenerator {
 
             countPaint.textAlign = Paint.Align.CENTER
             dayPaint.textAlign = Paint.Align.CENTER
-            canvas.drawText(day.count.toString(), centerX, bottom - 92f, countPaint)
-            canvas.drawText(day.label.uppercase(Locale.ENGLISH), centerX, bottom - 24f, dayPaint)
+            canvas.drawText(number(day.count), centerX, bottom - 92f, countPaint)
+            canvas.drawText(day.label.uppercase(Locale.getDefault()), centerX, bottom - 24f, dayPaint)
         }
         countPaint.textAlign = Paint.Align.LEFT
         dayPaint.textAlign = Paint.Align.LEFT
     }
+
+    /** Formats plain counts with the device locale so digits match the language. */
+    private fun number(value: Int): String = String.format(Locale.getDefault(), "%d", value)
 
     private fun paint(
         size: Float = 30f,

@@ -93,7 +93,7 @@ fun EyeTheme(
 ) {
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
-        typography = EyeTypography,
+        typography = typographyForLocale(),
         shapes = EyeShapes,
         content = content,
     )
