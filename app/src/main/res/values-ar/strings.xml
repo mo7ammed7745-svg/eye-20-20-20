@@ -134,6 +134,14 @@
     <string name="allow_break_skipping">السماح بتخطي الاستراحات</string>
     <string name="allow_break_skipping_desc">يضيف زر «متابعة العمل» على شاشة الاستراحة. وهو معطّل افتراضيًا لتبقى الاستراحات محمية.</string>
     <string name="section_break">سلوك الاستراحة</string>
+    <string name="section_before_break">قبل الاستراحة</string>
+    <string name="break_warning">عدّ تنازلي قبل الاستراحة</string>
+    <string name="break_warning_desc">يظهر منبثق صغير فوق التطبيق الذي تستخدمه في الثواني الأخيرة من التركيز، حتى تُكمل ما تفعله.</string>
+    <string name="break_warning_length">مدة العدّ التنازلي</string>
+    <string name="break_warning_length_desc">عدد الثواني قبل بدء الاستراحة التي يظهر فيها المنبثق.</string>
+    <string name="dialog_break_warning_title">مدة العدّ التنازلي</string>
+    <string name="limit_break_warning">5–60 ثانية</string>
+    <string name="invalid_break_warning">أدخل عددًا صحيحًا من 5 إلى 60.</string>
     <string name="vibrate_start">الاهتزاز عند بدء الاستراحة</string>
     <string name="vibrate_end">الاهتزاز عند انتهاء الاستراحة</string>
     <string name="voice_announcements">الإعلانات الصوتية</string>
@@ -196,6 +204,8 @@
     <string name="notif_channel_timer_desc">عدّ تنازلي دائم لجلسة التركيز أو الاستراحة الحالية.</string>
     <string name="notif_channel_break">تنبيهات الاستراحة</string>
     <string name="notif_channel_break_desc">تذكير يظهر عند بدء استراحة العين.</string>
+    <string name="notif_channel_soon">العدّ التنازلي للاستراحة</string>
+    <string name="notif_channel_soon_desc">منبثق قبل بدء استراحة العين بثوانٍ.</string>
     <string name="notif_working">جارٍ العمل · يتبقى %1$s</string>
     <string name="notif_paused">العمل متوقف مؤقتًا · يتبقى %1$s</string>
     <string name="notif_break">استراحة العين · يتبقى %1$s</string>

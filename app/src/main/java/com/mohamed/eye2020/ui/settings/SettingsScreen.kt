@@ -134,6 +134,28 @@ fun SettingsScreen(
             }
 
             Spacer(Modifier.height(24.dp))
+            SettingsSection(title = stringResource(R.string.section_before_break)) {
+                SwitchRow(
+                    title = stringResource(R.string.break_warning),
+                    description = stringResource(R.string.break_warning_desc),
+                    checked = settings.breakWarningEnabled,
+                    onCheckedChange = viewModel::setBreakWarningEnabled,
+                )
+                if (settings.breakWarningEnabled) {
+                    RowDivider()
+                    DurationRow(
+                        title = stringResource(R.string.break_warning_length),
+                        description = stringResource(R.string.break_warning_length_desc),
+                        value = stringResource(
+                            R.string.duration_seconds,
+                            settings.breakWarningSeconds,
+                        ),
+                        onClick = { dialog = DurationField.WARNING },
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
             SettingsSection(title = stringResource(R.string.section_break)) {
                 SwitchRow(
                     title = stringResource(R.string.allow_break_skipping),
@@ -385,11 +407,27 @@ fun SettingsScreen(
                     dialog = null
                 },
             )
+
+            DurationField.WARNING -> DurationPickerDialog(
+                title = stringResource(R.string.dialog_break_warning_title),
+                unit = stringResource(R.string.unit_seconds),
+                unitShort = stringResource(R.string.unit_seconds_short),
+                presets = listOf(10, 20, 30),
+                range = AppSettings.LIMIT_BREAK_WARNING,
+                initialValue = settings.breakWarningSeconds,
+                limitText = stringResource(R.string.limit_break_warning),
+                invalidText = stringResource(R.string.invalid_break_warning),
+                onDismiss = { dialog = null },
+                onSave = {
+                    viewModel.setBreakWarningSeconds(it)
+                    dialog = null
+                },
+            )
         }
     }
 }
 
-private enum class DurationField { WORK, BREAK, GRACE }
+private enum class DurationField { WORK, BREAK, GRACE, WARNING }
 
 /**
  * Game mode: apps listed here get a quiet break (sound plus a small notification

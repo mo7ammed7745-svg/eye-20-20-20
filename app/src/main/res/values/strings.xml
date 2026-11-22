@@ -122,6 +122,14 @@
     <string name="allow_break_skipping">Allow skipping breaks</string>
     <string name="allow_break_skipping_desc">Adds a "Continue working" button on the break screen. Off by default so breaks stay protected.</string>
     <string name="section_break">BREAK BEHAVIOR</string>
+    <string name="section_before_break">BEFORE A BREAK</string>
+    <string name="break_warning">Countdown before a break</string>
+    <string name="break_warning_desc">Shows a small pop-up over the app you are using during the last seconds of focus, so you can finish what you are doing.</string>
+    <string name="break_warning_length">Countdown length</string>
+    <string name="break_warning_length_desc">How many seconds before the break the pop-up appears.</string>
+    <string name="dialog_break_warning_title">Countdown length</string>
+    <string name="limit_break_warning">5–60 seconds</string>
+    <string name="invalid_break_warning">Enter a whole number from 5 to 60.</string>
     <string name="vibrate_start">Vibrate when a break starts</string>
     <string name="vibrate_end">Vibrate when a break ends</string>
     <string name="voice_announcements">Voice announcements</string>
@@ -184,6 +192,8 @@
     <string name="notif_channel_timer_desc">Ongoing countdown for the current focus or break session.</string>
     <string name="notif_channel_break">Break alerts</string>
     <string name="notif_channel_break_desc">Reminder shown when an eye break begins.</string>
+    <string name="notif_channel_soon">Break countdown</string>
+    <string name="notif_channel_soon_desc">Pop-up a few seconds before an eye break starts.</string>
     <string name="notif_working">Working · %1$s left</string>
     <string name="notif_paused">Work paused · %1$s left</string>
     <string name="notif_break">Eye break · %1$s left</string>

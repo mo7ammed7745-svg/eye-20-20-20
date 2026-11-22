@@ -187,9 +187,10 @@ fun EyeApp(
             }
         }
 
-        // Sits above the tabs so the last ten seconds of work are visible everywhere.
+        // Sits above the tabs so the last seconds of work are visible everywhere.
         BreakSoonBanner(
             state = timerState,
+            warningLeadMillis = settings.breakWarningMillis,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .statusBarsPadding(),

@@ -23,6 +23,33 @@ class AppSettingsTest {
         assertEquals(20 * 60_000L, settings.workMillis)
         assertEquals(20_000L, settings.breakMillis)
         assertEquals(120_000L, settings.graceMillis)
+        assertTrue(settings.breakWarningEnabled)
+        assertEquals(10, settings.breakWarningSeconds)
+        assertEquals(10_000L, settings.breakWarningMillis)
+    }
+
+    @Test
+    fun breakWarningCanBeSwitchedOffAndIsClamped() {
+        assertEquals(
+            0L,
+            AppSettings(breakWarningEnabled = false).validated().breakWarningMillis,
+        )
+        assertEquals(
+            AppSettings.DEFAULT_BREAK_WARNING_SECONDS,
+            AppSettings(breakWarningSeconds = 1).validated().breakWarningSeconds,
+        )
+        assertEquals(
+            AppSettings.DEFAULT_BREAK_WARNING_SECONDS,
+            AppSettings(breakWarningSeconds = 999).validated().breakWarningSeconds,
+        )
+        assertEquals(
+            5,
+            AppSettings(breakWarningSeconds = 5).validated().breakWarningSeconds,
+        )
+        assertEquals(
+            60,
+            AppSettings(breakWarningSeconds = 60).validated().breakWarningSeconds,
+        )
     }
 
     @Test

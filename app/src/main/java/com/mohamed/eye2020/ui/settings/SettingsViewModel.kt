@@ -53,6 +53,12 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
 
     fun setFullscreenBreak(enabled: Boolean) = update { it.copy(fullscreenBreak = enabled) }
 
+    fun setBreakWarningEnabled(enabled: Boolean) =
+        update { it.copy(breakWarningEnabled = enabled) }
+
+    fun setBreakWarningSeconds(value: Int) =
+        update { it.copy(breakWarningSeconds = value) }
+
     /** Replaces the game-mode app list in one write (picker must feel atomic). */
     fun setGameModeApps(packages: List<String>) =
         update { it.copy(gameModeApps = packages) }

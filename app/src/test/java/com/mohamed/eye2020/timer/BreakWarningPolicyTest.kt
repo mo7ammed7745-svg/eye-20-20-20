@@ -11,12 +11,14 @@ class BreakWarningPolicyTest {
         isActive: Boolean = true,
         isRunning: Boolean = true,
         remainingMillis: Long,
+        warningLeadMillis: Long = 10_000L,
         alreadyWarned: Boolean = false,
     ): Boolean = BreakWarningPolicy.shouldWarn(
         phase = phase,
         isActive = isActive,
         isRunning = isRunning,
         remainingMillis = remainingMillis,
+        warningLeadMillis = warningLeadMillis,
         alreadyWarned = alreadyWarned,
     )
 
@@ -31,6 +33,20 @@ class BreakWarningPolicyTest {
     fun doesNotWarnBeforeTheWindow() {
         assertFalse(shouldWarn(remainingMillis = 10_001L))
         assertFalse(shouldWarn(remainingMillis = 60_000L))
+    }
+
+    @Test
+    fun followsTheChosenCountdownLength() {
+        assertTrue(shouldWarn(remainingMillis = 20_000L, warningLeadMillis = 20_000L))
+        assertFalse(shouldWarn(remainingMillis = 21_000L, warningLeadMillis = 20_000L))
+        assertTrue(shouldWarn(remainingMillis = 5_000L, warningLeadMillis = 5_000L))
+        assertFalse(shouldWarn(remainingMillis = 6_000L, warningLeadMillis = 5_000L))
+    }
+
+    @Test
+    fun switchedOffNeverWarns() {
+        assertFalse(shouldWarn(remainingMillis = 5_000L, warningLeadMillis = 0L))
+        assertFalse(shouldWarn(remainingMillis = 1L, warningLeadMillis = 0L))
     }
 
     @Test

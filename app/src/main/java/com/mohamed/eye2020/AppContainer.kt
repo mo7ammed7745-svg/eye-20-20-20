@@ -45,6 +45,7 @@ class AppContainer(context: Context) {
         breakRepository = breakRepository,
         announcementPlayer = announcementPlayer,
         gameModeController = gameModeController,
+        notificationHelper = notificationHelper,
         appScope = applicationScope,
     )
 }

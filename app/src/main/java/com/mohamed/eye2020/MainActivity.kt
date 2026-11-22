@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import com.mohamed.eye2020.ui.EyeApp
 import com.mohamed.eye2020.ui.theme.EyeTheme
+import com.mohamed.eye2020.util.AppVisibility
 
 class MainActivity : ComponentActivity() {
 
@@ -57,6 +58,16 @@ class MainActivity : ComponentActivity() {
                 },
             )
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        AppVisibility.onActivityStarted()
+    }
+
+    override fun onStop() {
+        AppVisibility.onActivityStopped()
+        super.onStop()
     }
 
     private fun requestNotificationPermission() {

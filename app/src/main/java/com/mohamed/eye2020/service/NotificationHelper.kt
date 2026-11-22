@@ -58,7 +58,22 @@ class NotificationHelper(private val context: Context) {
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
 
-        manager.createNotificationChannels(listOf(timerChannel, breakChannel))
+        // Its own channel on purpose: a silent notification never gets a heads-up
+        // banner on Android, so the pre-break countdown needs sound and vibration to
+        // pop up over other apps.
+        val breakSoonChannel = NotificationChannel(
+            CHANNEL_BREAK_SOON,
+            context.getString(R.string.notif_channel_soon),
+            NotificationManager.IMPORTANCE_HIGH,
+        ).apply {
+            description = context.getString(R.string.notif_channel_soon_desc)
+            setShowBadge(false)
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0L, 180L)
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        }
+
+        manager.createNotificationChannels(listOf(timerChannel, breakChannel, breakSoonChannel))
     }
 
     fun buildTimerNotification(
@@ -206,19 +221,20 @@ class NotificationHelper(private val context: Context) {
      */
     fun buildBreakSoonNotification(remainingMillis: Long): Notification {
         val seconds = ((remainingMillis + 999L) / 1_000L).toInt().coerceAtLeast(1)
-        return NotificationCompat.Builder(context, CHANNEL_BREAK)
+        return NotificationCompat.Builder(context, CHANNEL_BREAK_SOON)
             .setSmallIcon(R.drawable.ic_stat_eye)
             .setContentTitle(context.getString(R.string.notif_soon_title, seconds))
             .setContentText(context.getString(R.string.notif_soon_text))
             .setContentIntent(mainPendingIntent())
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
-            .setSilent(true)
             .setShowWhen(false)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setTimeoutAfter(BREAK_SOON_VISIBLE_MILLIS)
+            .setVibrate(longArrayOf(0L, 180L))
+            // Stays just past the break start; the service also cancels it explicitly.
+            .setTimeoutAfter(remainingMillis.coerceAtLeast(1_000L) + 3_000L)
             .build()
     }
 
@@ -344,15 +360,13 @@ class NotificationHelper(private val context: Context) {
     companion object {
         const val CHANNEL_TIMER = "active_timer"
         const val CHANNEL_BREAK = "break_alerts"
+        const val CHANNEL_BREAK_SOON = "break_countdown"
         const val NOTIFICATION_ID_TIMER = 1001
         const val NOTIFICATION_ID_BREAK_ALERT = 1002
         const val NOTIFICATION_ID_BREAK_SOON = 1003
 
         /** How long the quiet game-mode banner stays visible before it slides away. */
         const val QUIET_ALERT_VISIBLE_MILLIS = 2_000L
-
-        /** How long the "break in 10 seconds" heads-up stays before it clears itself. */
-        const val BREAK_SOON_VISIBLE_MILLIS = 8_000L
 
         private const val REQUEST_OPEN_MAIN = 10
         private const val REQUEST_OPEN_BREAK = 11

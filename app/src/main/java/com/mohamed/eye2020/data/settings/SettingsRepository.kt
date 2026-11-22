@@ -50,6 +50,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 preferences[Keys.ANNOUNCEMENT_VOLUME] = next.announcementVolume
                 preferences[Keys.KEEP_AWAKE] = next.keepScreenAwakeDuringBreak
                 preferences[Keys.FULLSCREEN_BREAK] = next.fullscreenBreak
+                preferences[Keys.BREAK_WARNING_ENABLED] = next.breakWarningEnabled
+                preferences[Keys.BREAK_WARNING_SECONDS] = next.breakWarningSeconds
                 preferences[Keys.GAME_MODE_APPS] = next.gameModeApps.toSortedSet()
             }
         }.onFailure { error ->
@@ -70,6 +72,9 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             ?: AppSettings.DEFAULT_ANNOUNCEMENT_VOLUME,
         keepScreenAwakeDuringBreak = this[Keys.KEEP_AWAKE] ?: true,
         fullscreenBreak = this[Keys.FULLSCREEN_BREAK] ?: true,
+        breakWarningEnabled = this[Keys.BREAK_WARNING_ENABLED] ?: true,
+        breakWarningSeconds = this[Keys.BREAK_WARNING_SECONDS]
+            ?: AppSettings.DEFAULT_BREAK_WARNING_SECONDS,
         gameModeApps = this[Keys.GAME_MODE_APPS]?.toList() ?: emptyList(),
     ).validated()
 
@@ -85,6 +90,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val ANNOUNCEMENT_VOLUME = floatPreferencesKey("announcement_volume")
         val KEEP_AWAKE = booleanPreferencesKey("keep_screen_awake_during_break")
         val FULLSCREEN_BREAK = booleanPreferencesKey("fullscreen_break")
+        val BREAK_WARNING_ENABLED = booleanPreferencesKey("break_warning_enabled")
+        val BREAK_WARNING_SECONDS = intPreferencesKey("break_warning_seconds")
         val GAME_MODE_APPS = stringSetPreferencesKey("game_mode_apps")
     }
 
