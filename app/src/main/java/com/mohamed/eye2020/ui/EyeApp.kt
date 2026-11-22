@@ -181,6 +181,7 @@ fun EyeApp(
                 Destination.SETTINGS -> SettingsScreen(
                     settings = settings,
                     viewModel = settingsViewModel,
+                    onOpenSetupGuide = { setupCompleted = false },
                     modifier = Modifier.padding(innerPadding),
                 )
             }

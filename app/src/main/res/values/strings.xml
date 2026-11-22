@@ -103,6 +103,7 @@
     <string name="setup_fsi_body">Android 14 and later needs this extra switch so the break screen can open over other apps without a tap. Without it, a tap on the notification opens the break.</string>
     <string name="setup_allow_fsi">Allow full-screen alerts</string>
     <string name="setup_later_note">You can change these later in Settings → Background &amp; Permissions.</string>
+    <string name="settings_setup_guide">Open the setup guide</string>
     <string name="open_settings">Open settings</string>
     <string name="open_notification_settings">Notification settings</string>
 
