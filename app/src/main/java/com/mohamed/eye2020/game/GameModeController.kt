@@ -50,6 +50,13 @@ class GameModeController(private val context: Context) {
 
     private val iconCache = ConcurrentHashMap<String, Drawable?>()
 
+    /**
+     * Labels come from the package manager, which is slow enough to be felt when a list
+     * of games is drawn. The result is cached; the label of an installed app does not
+     * change while the app runs.
+     */
+    private val labelCache = ConcurrentHashMap<String, String>()
+
     fun isUsageAccessGranted(): Boolean {
         val appOps = context.getSystemService(AppOpsManager::class.java) ?: return false
         val mode = appOps.checkOpNoThrow(
@@ -121,10 +128,15 @@ class GameModeController(private val context: Context) {
      * com.king.candycrushsaga). Falls back to the package name if the app was
      * uninstalled since it was added, so the list never shows blanks.
      */
-    fun labelFor(packageName: String): String = runCatching {
-        val pm = context.packageManager
-        pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
-    }.getOrDefault(packageName)
+    fun labelFor(packageName: String): String {
+        labelCache[packageName]?.let { return it }
+        val label = runCatching {
+            val pm = context.packageManager
+            pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
+        }.getOrDefault(packageName)
+        labelCache[packageName] = label
+        return label
+    }
 
     /**
      * The launcher icon of an installed app, cached because the picker asks for it on

@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.data.settings.SettingsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -15,12 +17,13 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
 
     /**
      * The persisted values are emitted first, so opening Settings does not flash the
-     * factory defaults while DataStore finishes its first read.
+     * factory defaults while DataStore finishes its first read. The read itself stays off
+     * the main thread so it can never stall a frame.
      */
     val settings: StateFlow<AppSettings> = flow {
         emit(loadCurrent())
         emitAll(repository.settings)
-    }.stateIn(
+    }.flowOn(Dispatchers.IO).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = AppSettings(),

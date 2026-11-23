@@ -21,9 +21,17 @@ import com.mohamed.eye2020.R
 import com.mohamed.eye2020.timer.PauseReason
 import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.timer.TimerState
+import com.mohamed.eye2020.util.AppLocale
 import com.mohamed.eye2020.util.TimeFormat
 
 class NotificationHelper(private val context: Context) {
+
+    /**
+     * Notifications are built from the application context, which keeps the phone's own
+     * language; wrapping it per call keeps them in the language chosen inside the app.
+     */
+    private val localized: Context
+        get() = AppLocale.wrap(context)
 
     fun createChannels() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -31,10 +39,10 @@ class NotificationHelper(private val context: Context) {
 
         val timerChannel = NotificationChannel(
             CHANNEL_TIMER,
-            context.getString(R.string.notif_channel_timer),
+            localized.getString(R.string.notif_channel_timer),
             NotificationManager.IMPORTANCE_LOW,
         ).apply {
-            description = context.getString(R.string.notif_channel_timer_desc)
+            description = localized.getString(R.string.notif_channel_timer_desc)
             setShowBadge(false)
             setSound(null, null)
             enableVibration(false)
@@ -43,10 +51,10 @@ class NotificationHelper(private val context: Context) {
 
         val breakChannel = NotificationChannel(
             CHANNEL_BREAK,
-            context.getString(R.string.notif_channel_break),
+            localized.getString(R.string.notif_channel_break),
             NotificationManager.IMPORTANCE_HIGH,
         ).apply {
-            description = context.getString(R.string.notif_channel_break_desc)
+            description = localized.getString(R.string.notif_channel_break_desc)
             setShowBadge(true)
             setSound(
                 null,
@@ -63,10 +71,10 @@ class NotificationHelper(private val context: Context) {
         // pop up over other apps.
         val breakSoonChannel = NotificationChannel(
             CHANNEL_BREAK_SOON,
-            context.getString(R.string.notif_channel_soon),
+            localized.getString(R.string.notif_channel_soon),
             NotificationManager.IMPORTANCE_HIGH,
         ).apply {
-            description = context.getString(R.string.notif_channel_soon_desc)
+            description = localized.getString(R.string.notif_channel_soon_desc)
             setShowBadge(false)
             enableVibration(true)
             vibrationPattern = longArrayOf(0L, 180L)
@@ -86,18 +94,18 @@ class NotificationHelper(private val context: Context) {
         val time = TimeFormat.clock(remainingMillis)
 
         val title = when {
-            isIdle -> context.getString(R.string.app_name)
-            isBreak -> context.getString(R.string.status_break)
-            isScreenOffPause -> context.getString(R.string.notif_paused_screen_off)
-            state.isRunning -> context.getString(R.string.status_working)
-            else -> context.getString(R.string.status_paused)
+            isIdle -> localized.getString(R.string.app_name)
+            isBreak -> localized.getString(R.string.status_break)
+            isScreenOffPause -> localized.getString(R.string.notif_paused_screen_off)
+            state.isRunning -> localized.getString(R.string.status_working)
+            else -> localized.getString(R.string.status_paused)
         }
         val text = when {
-            isIdle -> context.getString(R.string.notif_timer_ready)
-            isBreak -> context.getString(R.string.notif_break, time)
-            isScreenOffPause -> context.getString(R.string.notif_paused, time)
-            state.isRunning -> context.getString(R.string.notif_working, time)
-            else -> context.getString(R.string.notif_paused, time)
+            isIdle -> localized.getString(R.string.notif_timer_ready)
+            isBreak -> localized.getString(R.string.notif_break, time)
+            isScreenOffPause -> localized.getString(R.string.notif_paused, time)
+            state.isRunning -> localized.getString(R.string.notif_working, time)
+            else -> localized.getString(R.string.notif_paused, time)
         }
 
         val progress = if (state.totalMillis > 0L) {
@@ -128,18 +136,18 @@ class NotificationHelper(private val context: Context) {
             if (state.pauseReason == PauseReason.USER) {
                 builder.addAction(
                     R.drawable.ic_play,
-                    context.getString(R.string.notif_action_resume),
+                    localized.getString(R.string.notif_action_resume),
                     commandPendingIntent(TimerService.ACTION_RESUME, REQUEST_RESUME),
                 )
                 builder.addAction(
                     R.drawable.ic_stop,
-                    context.getString(R.string.notif_action_stop),
+                    localized.getString(R.string.notif_action_stop),
                     commandPendingIntent(TimerService.ACTION_STOP, REQUEST_STOP),
                 )
             } else if (state.isRunning) {
                 builder.addAction(
                     R.drawable.ic_pause,
-                    context.getString(R.string.notif_action_pause),
+                    localized.getString(R.string.notif_action_pause),
                     commandPendingIntent(TimerService.ACTION_PAUSE, REQUEST_PAUSE),
                 )
             }
@@ -171,15 +179,15 @@ class NotificationHelper(private val context: Context) {
     fun buildBreakAlertNotification(state: TimerState): Notification {
         val breakIntent = breakPendingIntent()
         val seconds = (state.totalMillis / 1_000L).toInt()
-        val duration = context.resources.getQuantityString(
+        val duration = localized.resources.getQuantityString(
             R.plurals.label_seconds,
             seconds,
             seconds,
         )
         return NotificationCompat.Builder(context, CHANNEL_BREAK)
             .setSmallIcon(R.drawable.ic_stat_eye)
-            .setContentTitle(context.getString(R.string.notif_alert_title))
-            .setContentText(context.getString(R.string.notif_alert_text, duration))
+            .setContentTitle(localized.getString(R.string.notif_alert_title))
+            .setContentText(localized.getString(R.string.notif_alert_text, duration))
             .setContentIntent(breakIntent)
             .setFullScreenIntent(breakIntent, true)
             .setAutoCancel(true)
@@ -223,8 +231,8 @@ class NotificationHelper(private val context: Context) {
         val seconds = ((remainingMillis + 999L) / 1_000L).toInt().coerceAtLeast(1)
         return NotificationCompat.Builder(context, CHANNEL_BREAK_SOON)
             .setSmallIcon(R.drawable.ic_stat_eye)
-            .setContentTitle(context.getString(R.string.notif_soon_title, seconds))
-            .setContentText(context.getString(R.string.notif_soon_text))
+            .setContentTitle(localized.getString(R.string.notif_soon_title, seconds))
+            .setContentText(localized.getString(R.string.notif_soon_text))
             .setContentIntent(mainPendingIntent())
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
@@ -267,15 +275,15 @@ class NotificationHelper(private val context: Context) {
      */
     fun buildQuietBreakNotification(state: TimerState): Notification {
         val seconds = (state.totalMillis / 1_000L).toInt()
-        val duration = context.resources.getQuantityString(
+        val duration = localized.resources.getQuantityString(
             R.plurals.label_seconds,
             seconds,
             seconds,
         )
         return NotificationCompat.Builder(context, CHANNEL_BREAK)
             .setSmallIcon(R.drawable.ic_stat_eye)
-            .setContentTitle(context.getString(R.string.notif_quiet_title))
-            .setContentText(context.getString(R.string.notif_quiet_text, duration))
+            .setContentTitle(localized.getString(R.string.notif_quiet_title))
+            .setContentText(localized.getString(R.string.notif_quiet_text, duration))
             .setContentIntent(mainPendingIntent())
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)

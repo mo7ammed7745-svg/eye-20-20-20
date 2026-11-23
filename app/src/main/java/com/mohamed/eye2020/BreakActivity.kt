@@ -1,7 +1,9 @@
 package com.mohamed.eye2020
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.addCallback
@@ -18,7 +20,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.ui.breakscreen.BreakScreen
+import com.mohamed.eye2020.ui.ProvideLanguageDirection
 import com.mohamed.eye2020.ui.theme.EyeTheme
+import com.mohamed.eye2020.util.AppLocale
 import kotlinx.coroutines.launch
 
 /**
@@ -32,6 +36,10 @@ class BreakActivity : ComponentActivity() {
         get() = (application as EyeApplication).container
 
     private var closing = false
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLocale.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +62,13 @@ class BreakActivity : ComponentActivity() {
         }
         applyWindowOptions(AppSettings())
 
+        window.decorView.layoutDirection =
+            if (container.languagePreferences.language.value.isArabic) {
+                View.LAYOUT_DIRECTION_RTL
+            } else {
+                View.LAYOUT_DIRECTION_LTR
+            }
+
         if (!container.timerManager.isInBreak()) {
             closeAfterBreak()
             return
@@ -64,15 +79,18 @@ class BreakActivity : ComponentActivity() {
             val settings by container.settingsRepository.settings.collectAsStateWithLifecycle(
                 initialValue = AppSettings(),
             )
+            val language by container.languagePreferences.language.collectAsStateWithLifecycle()
             EyeTheme(darkTheme = true) {
-                BreakScreen(
-                    state = state,
-                    onSkip = if (settings.allowBreakSkipping) {
-                        { container.timerManager.skipBreak() }
-                    } else {
-                        null
-                    },
-                )
+                ProvideLanguageDirection(language) {
+                    BreakScreen(
+                        state = state,
+                        onSkip = if (settings.allowBreakSkipping) {
+                            { container.timerManager.skipBreak() }
+                        } else {
+                            null
+                        },
+                    )
+                }
             }
             androidx.compose.runtime.LaunchedEffect(
                 settings.fullscreenBreak,

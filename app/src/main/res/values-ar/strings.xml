@@ -192,6 +192,19 @@
     <string name="unit_minutes_short">د</string>
     <string name="unit_seconds_short">ث</string>
 
+    <!-- Language -->
+    <string name="section_language">اللغة</string>
+    <string name="language_setting">لغة التطبيق</string>
+    <string name="language_setting_desc">اختر لغة التطبيق. يُطبَّق التغيير فورًا.</string>
+    <string name="language_english">English</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_pick_title">Choose your language</string>
+    <string name="language_pick_title_ar">اختر لغة التطبيق</string>
+    <string name="language_pick_subtitle">You can change this later in Settings.</string>
+    <string name="language_pick_subtitle_ar">يمكنك تغييرها لاحقًا من الإعدادات.</string>
+    <string name="language_option_english_desc">Continue in English</string>
+    <string name="language_option_arabic_desc">المتابعة باللغة العربية</string>
+
     <!-- Break screen -->
     <string name="break_eyebrow">استراحة العين</string>
     <string name="break_instruction">انظر إلى شيء يبعد عنك نحو 20 قدمًا (6 أمتار).</string>
@@ -237,6 +250,9 @@
     <string name="game_mode_search_hint">ابحث عن تطبيق</string>
     <string name="game_mode_clear_search">مسح البحث</string>
     <string name="game_mode_selected_count">المحدد: %1$d</string>
+    <string name="game_mode_selected_title">التطبيقات المختارة</string>
+    <string name="game_mode_clear_all">إزالة الكل</string>
+    <string name="game_mode_remove_app">إزالة %1$s</string>
     <string name="game_mode_no_results">لا توجد تطبيقات تطابق «%1$s».</string>
     <string name="game_mode_usage_needed">يحتاج وضع الألعاب صلاحية «الوصول إلى بيانات الاستخدام» ليعرف أي تطبيق مفتوح. وبدونها تظهر الاستراحات بملء الشاشة دائمًا.</string>
     <string name="game_mode_usage_grant">منح صلاحية الوصول إلى بيانات الاستخدام</string>

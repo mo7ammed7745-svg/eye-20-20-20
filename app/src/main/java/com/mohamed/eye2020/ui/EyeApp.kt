@@ -43,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamed.eye2020.EyeViewModelFactory
 import com.mohamed.eye2020.R
+import com.mohamed.eye2020.data.settings.AppLanguage
+import com.mohamed.eye2020.data.settings.LanguagePreferences
 import com.mohamed.eye2020.data.settings.SetupPreferences
 import com.mohamed.eye2020.timer.TimerEvent
 import com.mohamed.eye2020.timer.TimerManager
@@ -50,6 +52,7 @@ import com.mohamed.eye2020.timer.TimerPhase
 import com.mohamed.eye2020.ui.breakscreen.BreakScreen
 import com.mohamed.eye2020.ui.home.HomeScreen
 import com.mohamed.eye2020.ui.home.HomeViewModel
+import com.mohamed.eye2020.ui.language.LanguageScreen
 import com.mohamed.eye2020.ui.permissions.rememberPermissionSnapshot
 import com.mohamed.eye2020.ui.settings.SettingsScreen
 import com.mohamed.eye2020.ui.settings.SettingsViewModel
@@ -71,6 +74,8 @@ fun EyeApp(
     factory: EyeViewModelFactory,
     timerManager: TimerManager,
     setupPreferences: SetupPreferences,
+    languagePreferences: LanguagePreferences,
+    onLanguageChange: (AppLanguage) -> Unit,
     onRequestNotificationPermission: () -> Unit,
     permissionRefreshKey: Int = 0,
 ) {
@@ -80,8 +85,18 @@ fun EyeApp(
 
     val timerState by timerManager.state.collectAsStateWithLifecycle()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val language by languagePreferences.language.collectAsStateWithLifecycle()
     val permissionStatus = rememberPermissionSnapshot(permissionRefreshKey)
     var setupCompleted by remember { mutableStateOf(setupPreferences.isCompleted()) }
+    val languageChosen = remember { languagePreferences.hasChosen }
+
+    // Asked once, before the permission setup, so the rest of the first run is already
+    // drawn in the chosen language. Saving the answer recreates the activity, which
+    // re-reads the stored language in attachBaseContext.
+    if (!languageChosen) {
+        LanguageScreen(onSelect = onLanguageChange)
+        return
+    }
 
     if (timerState.phase == TimerPhase.BREAK && timerState.isActive) {
         BackHandler(enabled = true) {
@@ -181,6 +196,8 @@ fun EyeApp(
                 Destination.SETTINGS -> SettingsScreen(
                     settings = settings,
                     viewModel = settingsViewModel,
+                    language = language,
+                    onLanguageChange = onLanguageChange,
                     onOpenSetupGuide = { setupCompleted = false },
                     modifier = Modifier.padding(innerPadding),
                 )

@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.eye2020.BuildConfig
 import com.mohamed.eye2020.R
+import com.mohamed.eye2020.data.settings.AppLanguage
 import com.mohamed.eye2020.data.settings.AppSettings
 import com.mohamed.eye2020.game.GameAppEntry
 import com.mohamed.eye2020.ui.game.GameAppIcon
@@ -65,6 +66,8 @@ import kotlin.math.roundToInt
 fun SettingsScreen(
     settings: AppSettings,
     viewModel: SettingsViewModel,
+    language: AppLanguage,
+    onLanguageChange: (AppLanguage) -> Unit,
     onOpenSetupGuide: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -100,6 +103,12 @@ fun SettingsScreen(
             )
 
             Spacer(Modifier.height(28.dp))
+            LanguageSection(
+                language = language,
+                onLanguageChange = onLanguageChange,
+            )
+
+            Spacer(Modifier.height(24.dp))
             SettingsSection(title = stringResource(R.string.section_timer)) {
                 DurationRow(
                     title = stringResource(R.string.work_duration),
@@ -428,6 +437,44 @@ fun SettingsScreen(
 }
 
 private enum class DurationField { WORK, BREAK, GRACE, WARNING }
+
+/**
+ * Global app language. Each choice is shown in its own script so it stays readable
+ * whichever language the app is currently in.
+ */
+@Composable
+private fun LanguageSection(
+    language: AppLanguage,
+    onLanguageChange: (AppLanguage) -> Unit,
+) {
+    SettingsSection(title = stringResource(R.string.section_language)) {
+        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Text(
+                text = stringResource(R.string.language_setting),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(Modifier.height(3.dp))
+            Text(
+                text = stringResource(R.string.language_setting_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                FilterChip(
+                    selected = language == AppLanguage.ENGLISH,
+                    onClick = { onLanguageChange(AppLanguage.ENGLISH) },
+                    label = { Text(stringResource(R.string.language_english)) },
+                )
+                FilterChip(
+                    selected = language == AppLanguage.ARABIC,
+                    onClick = { onLanguageChange(AppLanguage.ARABIC) },
+                    label = { Text(stringResource(R.string.language_arabic)) },
+                )
+            }
+        }
+    }
+}
 
 /**
  * Game mode: apps listed here get a quiet break (sound plus a small notification

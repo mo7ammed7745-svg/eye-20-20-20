@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.mohamed.eye2020.audio.AnnouncementPlayer
 import com.mohamed.eye2020.data.BreakRepository
 import com.mohamed.eye2020.data.db.EyeDatabase
+import com.mohamed.eye2020.data.settings.LanguagePreferences
 import com.mohamed.eye2020.data.settings.SettingsRepository
 import com.mohamed.eye2020.data.settings.SetupPreferences
 import com.mohamed.eye2020.data.settings.eyeSettingsDataStore
@@ -24,6 +25,8 @@ class AppContainer(context: Context) {
     val settingsRepository = SettingsRepository(appContext.eyeSettingsDataStore)
 
     val setupPreferences = SetupPreferences(appContext)
+
+    val languagePreferences = LanguagePreferences(appContext)
 
     private val database: EyeDatabase = Room.databaseBuilder(
         appContext,

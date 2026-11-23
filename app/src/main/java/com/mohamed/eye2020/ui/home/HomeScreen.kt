@@ -100,8 +100,6 @@ fun HomeScreen(
         overlayAllowed = SystemSettings.canDrawOverlays(context)
     }
 
-    val now = rememberRealtimeNow(state)
-
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -153,7 +151,6 @@ fun HomeScreen(
             Spacer(Modifier.height(28.dp))
             TimerDial(
                 state = state,
-                now = now,
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -333,9 +330,11 @@ private fun rememberRealtimeNow(state: TimerState): Long {
 @Composable
 private fun TimerDial(
     state: TimerState,
-    now: Long,
     modifier: Modifier = Modifier,
 ) {
+    // The 250 ms clock lives here, not in HomeScreen: only this dial recomposes while
+    // the timer runs, so the cards below it stay idle and scrolling stays smooth.
+    val now = rememberRealtimeNow(state)
     val remaining = state.remainingAt(now)
     val progress = state.progressAt(now)
     val track = MaterialTheme.colorScheme.surfaceVariant
