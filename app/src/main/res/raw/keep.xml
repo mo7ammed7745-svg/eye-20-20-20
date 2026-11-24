@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The announcements are opened by name with Resources.getIdentifier, which resource
+  shrinking cannot see, so the release build would drop the MP3s without this file.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/time_to_rest,@raw/time_to_work,@raw/time_to_rest_ar,@raw/time_to_work_ar" />

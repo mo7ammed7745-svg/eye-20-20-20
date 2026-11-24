@@ -5,6 +5,7 @@ import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.mohamed.eye2020.data.settings.LanguagePreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,10 +16,14 @@ import kotlinx.coroutines.withContext
  * by name so the app still builds and runs when the MP3 files have not been added.
  * Decoding happens on a background dispatcher; [MediaPlayer.create] reads and prepares a
  * file, which is far too slow for the main thread.
+ *
+ * The recording follows the language chosen inside the app, not the phone's language, so
+ * switching to Arabic also switches the spoken "time to rest" and "time to work" clips.
  */
 class AnnouncementPlayer(
     context: Context,
     private val playScope: CoroutineScope,
+    private val languagePreferences: LanguagePreferences,
 ) {
     private val appContext = context.applicationContext
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -27,28 +32,33 @@ class AnnouncementPlayer(
     @Volatile
     private var activePlayer: MediaPlayer? = null
 
-    fun playBreakStart(volume: Float) = play(RAW_BREAK_START, volume)
+    fun playBreakStart(volume: Float) = play(
+        primaryRawName = AnnouncementClips.breakStart(languagePreferences.language.value),
+        fallbackRawName = AnnouncementClips.BREAK_START,
+        volume = volume,
+    )
 
-    fun playWorkStart(volume: Float) = play(RAW_WORK_START, volume)
+    fun playWorkStart(volume: Float) = play(
+        primaryRawName = AnnouncementClips.workStart(languagePreferences.language.value),
+        fallbackRawName = AnnouncementClips.WORK_START,
+        volume = volume,
+    )
 
-    private fun play(rawName: String, volume: Float) {
+    private fun play(primaryRawName: String, fallbackRawName: String, volume: Float) {
         val safeVolume = if (volume.isNaN()) 1f else volume.coerceIn(0f, 1f)
         playScope.launch {
             val prepared = withContext(Dispatchers.IO) {
-                val resId = appContext.resources.getIdentifier(
-                    rawName,
-                    "raw",
-                    appContext.packageName,
-                )
+                val resId = rawId(primaryRawName).takeIf { it != 0 }
+                    ?: rawId(fallbackRawName)
                 if (resId == 0) {
-                    Log.w(TAG, "Missing res/raw/$rawName.mp3; announcement skipped")
+                    Log.w(TAG, "Missing res/raw/$primaryRawName.mp3; announcement skipped")
                     return@withContext null
                 }
                 releaseActive()
                 try {
                     MediaPlayer.create(appContext, resId)
                 } catch (error: Exception) {
-                    Log.w(TAG, "Unable to open res/raw/$rawName.mp3", error)
+                    Log.w(TAG, "Unable to open res/raw/$primaryRawName.mp3", error)
                     null
                 }
             } ?: return@launch
@@ -66,11 +76,17 @@ class AnnouncementPlayer(
                 }
                 prepared.start()
             }.onFailure { error ->
-                Log.w(TAG, "Unable to play res/raw/$rawName.mp3", error)
+                Log.w(TAG, "Unable to play res/raw/$primaryRawName.mp3", error)
                 release(prepared)
             }
         }
     }
+
+    private fun rawId(name: String): Int = appContext.resources.getIdentifier(
+        name,
+        "raw",
+        appContext.packageName,
+    )
 
     private fun activate(player: MediaPlayer) = synchronized(lock) {
         activePlayer = player
@@ -90,7 +106,5 @@ class AnnouncementPlayer(
 
     private companion object {
         const val TAG = "AnnouncementPlayer"
-        const val RAW_BREAK_START = "time_to_rest"
-        const val RAW_WORK_START = "time_to_work"
     }
 }

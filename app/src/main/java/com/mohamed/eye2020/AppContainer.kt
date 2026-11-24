@@ -38,7 +38,11 @@ class AppContainer(context: Context) {
 
     val notificationHelper = NotificationHelper(appContext).also { it.createChannels() }
 
-    private val announcementPlayer = AnnouncementPlayer(appContext, applicationScope)
+    private val announcementPlayer = AnnouncementPlayer(
+        appContext,
+        applicationScope,
+        languagePreferences,
+    )
 
     private val gameModeController = GameModeController(appContext)
 

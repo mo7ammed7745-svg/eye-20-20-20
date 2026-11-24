@@ -230,9 +230,9 @@
     <string name="notif_alert_title">حان وقت استراحة العين</string>
     <string name="notif_alert_text">انظر إلى شيء يبعد عنك نحو 20 قدمًا لمدة %1$s.</string>
     <string name="notif_soon_title">الاستراحة بعد %1$d ث</string>
-    <string name="notif_soon_text">أكمل ما تفعله الآن، ثم أبعد نظرك مسافة 20 قدمًا.</string>
+    <string name="notif_soon_text">أبعد نظرك 20 قدمًا.</string>
     <string name="break_soon_title">الاستراحة بعد %1$d ث</string>
-    <string name="break_soon_text">أكمل ما تفعله الآن، ثم أبعد نظرك مسافة 20 قدمًا.</string>
+    <string name="break_soon_text">أبعد نظرك 20 قدمًا.</string>
     <string name="notif_timer_ready">مؤقت Eye 20-20-20</string>
 
     <!-- Game mode -->

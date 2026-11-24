@@ -218,9 +218,9 @@
     <string name="notif_alert_title">Time for an eye break</string>
     <string name="notif_alert_text">Look at something approximately 20 feet away for %1$s.</string>
     <string name="notif_soon_title">Break in %1$d s</string>
-    <string name="notif_soon_text">Finish this thought, then look 20 feet away.</string>
+    <string name="notif_soon_text">Look 20 feet away.</string>
     <string name="break_soon_title">Break in %1$d s</string>
-    <string name="break_soon_text">Finish this thought, then look 20 feet away.</string>
+    <string name="break_soon_text">Look 20 feet away.</string>
     <string name="notif_timer_ready">Eye 20-20-20 timer</string>
 
     <!-- Game mode -->
